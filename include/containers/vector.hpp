@@ -90,7 +90,47 @@ namespace gsl {
         }
 
         void insert(const T &value, size_t index) override {
-            T* temp = new T
+            if (_size >= _capacity){
+                resize(_capacity * 2);
+            }
+            T* temp = new T [_capacity];
+            for (int i = 0; i<index;i++){
+                temp [i] = std::move(_data[i]);
+            }
+            temp[index] = std::move(value);
+            _size++;
+            for (size_t i = index+1;i<_size;i++){
+                temp[i] = std::move(_data[i-1]);
+            }
+            delete [] _data;
+            _data = temp;
+        }
+
+        void erase(size_t index) override {
+            T* temp = new T [_capacity];
+            _size--;
+            for (int i =0;i<index;i++){
+                temp[i] = std::move(_data[i]);
+            }
+            for (size_t i = index;i<_size;i++){
+                temp[i] = std::move(_data[i+1]);
+            }
+            delete [] _data;
+            _data = temp;
+        }
+
+        void erase(size_t first, size_t last) override {
+            T* temp = new T [_capacity];
+            size_t dif = last - first + 1;
+            _size = _size - dif;
+            for (int i = 0;i<first;i++){
+                temp[i] = std::move(_data[i]);
+            }
+            for (size_t i = first;i<_size;i++){
+                temp[i] = std::move(_data[i+dif]);
+            }
+            delete [] _data;
+            _data = temp;
         }
 
         bool empty () const override {
