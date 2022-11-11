@@ -22,8 +22,18 @@ target_include_directories(GSLib INTERFACE
     $<INSTALL_INTERFACE:include>
 )
 
-add_executable(GSLibTest tests/vector_tests.cpp)
+add_executable(GSLibTest_array tests/array_tests.cpp)
 
-target_link_libraries(GSLibTest GSLib Catch2::Catch2WithMain)
+add_executable(GSLibTest_vector tests/vector_tests.cpp)
 
-add_executable(main main.cpp)
+add_executable(GSLibTest_linked_list tests/linked_list_tests.cpp)
+
+target_link_libraries(GSLibTest_array GSLib Catch2::Catch2WithMain)
+
+target_link_libraries(GSLibTest_vector GSLib Catch2::Catch2WithMain)
+
+target_link_libraries(GSLibTest_linked_list GSLib Catch2::Catch2WithMain)
+
+add_executable(main cli/main.cpp)
+
+target_link_libraries(main GSLib)
