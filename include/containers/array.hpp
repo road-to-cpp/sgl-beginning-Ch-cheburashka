@@ -12,11 +12,8 @@ namespace gsl {
     template <typename T>
    class array : public i_fixed_sized_container<T> {
    public:
-       explicit array(size_t size = 0, const T &value = T()) : _size(size), _data(new T[size]) {
-           for (int i = 0; i < size; i++) {
-               _data[i] = value;
-           }
-       }
+       explicit array(size_t size = 0) : _size(size), _data(new T[size]) {}
+
        array(const array& other) : _size(other._size), _data(new T[other._size]) {
            for (int i = 0; i < _size; i++){
                _data[i] = other._data[i];

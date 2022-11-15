@@ -9,7 +9,7 @@ namespace gsl {
     template<typename T>
     class i_iterator {
     public:
-        virtual ~i_iterator() = 0;
+        virtual ~i_iterator() = default;
 
         virtual T &operator*() = 0;
 
