@@ -36,7 +36,7 @@ TEST_CASE("vector_tests") {
         REQUIRE(vector_int[3] == 0);
     }
 
-    SECTION("Clear_tests"){
+    SECTION("Clear tests"){
         gsl::vector<int> vector_int;
         for (int i =0;i<4;i++) {
             vector_int.push_back(1);
@@ -70,15 +70,31 @@ TEST_CASE("vector_tests") {
         REQUIRE(vector_int.size() == 4);
     }
 
-//    SECTION("Front and back test"){
-//        gsl::vector<int> vector_int;
-//        vector_int.push_back(1);
-//        for (int i = 0;i < 3;i++){
-//            vector_int.push_back(6);
-//        }
-//        vector_int.push_back(7);
-//        std::cout << vector_int.size();
-//        REQUIRE(vector_int.front()==1);
-//        REQUIRE(vector_int.back()==7);
-//        }
+    SECTION("Swap tests"){
+        gsl::vector<int> vector_int_1;
+        gsl::vector<int> vector_int_2;
+        for (int i = 0;i < 17;i++){
+            vector_int_1.push_back(7);
+        }
+        for (int i = 0;i < 7;i++){
+            vector_int_2.push_back(8);
+        }
+        vector_int_1.swap(vector_int_2);
+        REQUIRE(vector_int_1.size() == 7);
+        REQUIRE(vector_int_2.size() == 17);
+        REQUIRE(vector_int_1[0] == 8);
+        REQUIRE(vector_int_2[0] == 7);
+    }
+
+    SECTION("Front and back test"){
+        gsl::vector<int> vector_int;
+        vector_int.push_back(1);
+        for (int i = 0;i < 3;i++){
+            vector_int.push_back(6);
+        }
+        vector_int.push_back(7);
+        std::cout << vector_int.size();
+        REQUIRE(vector_int.front()==1);
+        REQUIRE(vector_int.back()==7);
+        }
 }

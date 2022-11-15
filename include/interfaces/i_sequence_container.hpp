@@ -35,7 +35,6 @@ namespace gsl {
 
         virtual void resize(size_t new_size, const T &value) = 0;
 
-//        virtual void swap(i_sequence_container &other) = 0;
     };
 }
 #endif //GSLIB_I_SEQUENCE_CONTAINER_HPP
