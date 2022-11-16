@@ -5,25 +5,17 @@
 #ifndef GSLIB_I_SEQUENCE_CONTAINER_HPP
 #define GSLIB_I_SEQUENCE_CONTAINER_HPP
 
-#include "i_container.hpp"
+#include "i_referenceable.hpp"
 
 namespace gsl {
     template<typename T>
-    class i_sequence_container : public i_container<T> {
+    class i_sequence_container : public i_referenceable<T> {
     public:
         virtual ~i_sequence_container() = default;
 
         virtual void push_back(const T &value) = 0;
 
         virtual void pop_back() = 0;
-
-        virtual T &back() = 0;
-
-        virtual const T &back() const = 0;
-
-        virtual T &front() = 0;
-
-        virtual const T &front() const = 0;
 
         virtual void insert(const T &value, size_t index) = 0;
 

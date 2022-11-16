@@ -44,7 +44,7 @@ namespace gsl {
         size_t size () const override {
            return _size;
         }
-        T * data () const {
+        T * data () const override {
             return _data;
         }
         size_t capacity () const {
@@ -170,7 +170,7 @@ namespace gsl {
             res.append("]");
             return res;
         }
-        vector & operator=(vector const &other) {
+        vector & operator=(vector const &other)  {
             if (this != &other) {
                 delete[] _data;
                 _capacity = other._capacity;

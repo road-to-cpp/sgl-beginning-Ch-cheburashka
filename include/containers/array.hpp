@@ -89,12 +89,17 @@ namespace gsl {
        T &operator[](size_t i) const {
            return _data[i];
        }
+
+       T & at(size_t i) const override {
+           return _data[i];
+       }
+
        ~array() {
            delete[] _data;
        }
-       friend std::ostream &operator<<(std::ostream &os, const array &vec) {
-           for (int i = 0; i < vec._size; i++) {
-               os << vec._data[i] << " ";
+       friend std::ostream &operator<<(std::ostream &os, const array &arr) {
+           for (int i = 0; i < arr._size; i++) {
+               os << arr._data[i] << " ";
            }
            os << '\n';
            return os;
