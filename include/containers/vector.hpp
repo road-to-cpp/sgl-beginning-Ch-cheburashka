@@ -44,7 +44,7 @@ namespace gsl {
         size_t size () const override {
            return _size;
         }
-        T * data () const override {
+        T * data () const {
             return _data;
         }
         size_t capacity () const {
@@ -106,7 +106,7 @@ namespace gsl {
             _size--;
         }
 
-        void clear () {
+        void clear () override {
             for (int i =_size;i>0;i--){
                 pop_back();
             }

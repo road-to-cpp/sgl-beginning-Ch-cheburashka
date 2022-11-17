@@ -15,7 +15,12 @@ namespace gsl {
 
         virtual void push_back(const T &value) = 0;
 
+        virtual void push_front(const T &value) = 0;
+
+
         virtual void pop_back() = 0;
+
+        virtual void pop_front() = 0;
 
         virtual void insert(const T &value, size_t index) = 0;
 
@@ -27,6 +32,7 @@ namespace gsl {
 
         virtual void resize(size_t new_size, const T &value) = 0;
 
+        virtual void clear () = 0;
     };
 }
 #endif //GSLIB_I_SEQUENCE_CONTAINER_HPP

@@ -19,8 +19,6 @@ namespace gsl {
 
         virtual const T &front() const = 0;
 
-        virtual T *data() const = 0;
-
         virtual T &operator[](size_t i) = 0;
 
         virtual T &operator[](size_t i) const = 0;
