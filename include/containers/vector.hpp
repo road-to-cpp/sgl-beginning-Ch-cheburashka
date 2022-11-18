@@ -97,11 +97,35 @@ namespace gsl {
             _data[_size++] = std::move(value);
         }
 
+        void push_front(const T &value) override {
+            if (_size >= _capacity){
+                resize(_capacity * 2);
+            }
+            T* temp = new T[_capacity];
+            temp[0] = value;
+            for (int i = 0; i<_size; i++){
+                temp[i+1] = _data[i];
+            }
+            delete [] _data;
+            _data = temp;
+            _size++;
+        }
+
         void pop_back () override {
             T *temp = new T[_capacity];
             for (int i = 0; i < _size - 1; ++i)
                 temp[i] = std::move(_data[i]);
             delete[] _data;
+            _data = temp;
+            _size--;
+        }
+
+        void pop_front() override {
+            T *temp = new T[_capacity];
+            for (int i =1; i<_size;i++){
+                temp[i-1] = _data[i];
+            }
+            delete [] _data;
             _data = temp;
             _size--;
         }
