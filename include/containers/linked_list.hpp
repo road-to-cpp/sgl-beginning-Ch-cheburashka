@@ -152,15 +152,29 @@ namespace gsl {
         }
 
         void resize(size_t new_size) override {
-            for (int i =0; i < new_size-_size; i++) {
-                push_back(T());
+            if (new_size > _size) {
+                for (int i = 0; i < new_size; i++)
+                    push_back(T());
+            }
+            else {
+                for (int i = 0; i < new_size; i++)
+                    pop_back();
             }
             _size = new_size;
         }
 
         void resize(size_t new_size, const T &value) override {
-            for (int i =0; i < new_size-_size; i++) {
-                push_back(value);
+            if (new_size > _size) {
+                size_t diff = new_size - _size;
+                for (int i = 0; i < new_size; i++)
+                    push_back(value);
+            }
+            else {
+                size_t diff = _size - new_size;
+                for (int i = 0; i < diff; i++)
+                    pop_back();
+                for (int i = 0; i < new_size; i++)
+                    push_front(value);
             }
             _size = new_size;
         }
