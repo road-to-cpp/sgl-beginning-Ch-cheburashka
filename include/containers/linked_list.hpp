@@ -6,7 +6,9 @@
 #define GSLIB_LINKED_LIST_HPP
 
 #include <interfaces/i_sequence_container.hpp>
+#include <iostream>
 #include <string>
+#include <sstream>
 
 namespace gsl {
     template <typename T>
@@ -21,7 +23,7 @@ namespace gsl {
     template<typename T>
     class linked_list : public i_sequence_container<T> {
     public:
-        explicit linked_list(): _size(0), _head(nullptr){}
+        explicit linked_list(): _size(0), _head(nullptr), _tail(_head){}
 
         size_t size() const override {
             return _size;
@@ -36,49 +38,40 @@ namespace gsl {
         }
 
         T &back() override {
-            Node<T>* current = _head;
-            while (current->_pNext != nullptr)
-                current = current->_pNext;
-            return current->_data;
+            return _tail->_data;
         }
         T &back() const override {
-            Node<T>* current = _head;
-            while (current->_pNext != nullptr)
-                current = current->_pNext;
-            return current->_data;
+            return _tail->_data;
         }
-
 
         T &operator[](size_t i) override {
             int cnt = 0;
-            Node<T>* current = _head;
-            for (; current->_pNext != nullptr; current = current->_pNext){
+            auto *current = _head;
+            for (; current != nullptr; current = current->_pNext) {
                 if (i == cnt++)
-                    break;
+                    return current->_data;
             }
-            return current->_data;
         }
 
         T &operator[](size_t i) const override {
             int cnt = 0;
-            Node<T>* current = _head;
-            for (; current->_pNext != nullptr; current = current->_pNext){
+            auto* current = _head;
+            for (; current != nullptr; current = current->_pNext) {
                 if (i == cnt++)
-                    break;
+                    return current->_data;
             }
-            return current->_data;
         }
-
 
         void push_back (const T &value) override {
            if (_head == nullptr){
                _head = new Node<T> (value);
+               _head->_pNext = _tail;
            }
            else {
-               Node<T>* current = _head;
+               auto* current = _head;
                while (current->_pNext != nullptr)
                    current = current->_pNext;
-               current->_pNext = new Node<T>(value);
+               current->_pNext = _tail = new Node<T>(value);
            }
            _size++;
         }
@@ -93,7 +86,7 @@ namespace gsl {
         }
 
         void pop_front() override {
-            Node<T>* current = _head;
+            auto* current = _head;
             _head = _head->_pNext;
             delete current;
             _size--;
@@ -103,11 +96,11 @@ namespace gsl {
             if (index == 0)
                 push_front(value);
             else {
-                Node<T>* previous = _head;
+                auto* previous = _head;
                 for (size_t i = 0; i < index -1; i++){
                     previous = previous->_pNext;
                 }
-                Node<T>* new_el = new Node<T> (value,previous->_pNext);
+                auto *new_el = new Node<T> (value,previous->_pNext);
                 previous->_pNext = new_el;
             }
             _size++;
@@ -117,20 +110,25 @@ namespace gsl {
             if (index == 0)
                 pop_front();
             else {
-                Node<T>* previous = _head;
-                for (size_t i = 0; i < index -1; i++){
+                auto *previous = _head;
+                for (size_t i = 0; i < index - 1; i++) {
                     previous = previous->_pNext;
                 }
-                Node<T>* del_el = previous->_pNext;
+                Node<T> *del_el = previous->_pNext;
                 previous->_pNext = del_el->_pNext;
                 delete del_el;
+            }
+            if (index == _size - 1){
+                auto* current = _head;
+                while (current->_pNext != nullptr)
+                    current = current->_pNext;
+                _tail = current;
             }
             _size--;
         }
 
         void erase(size_t first, size_t last) override {
-            size_t diff = last - first + 1;
-            Node<T>* previous = _head;
+            auto* previous = _head;
             for (size_t i = 0; i < first -1; i++){
                 previous = previous->_pNext;
             }
@@ -139,7 +137,13 @@ namespace gsl {
                 previous->_pNext = del_el->_pNext;
                 delete del_el;
             }
-            _size = _size - diff;
+            if (last == _size - 1){
+                auto* current = _head;
+                while (current->_pNext != nullptr)
+                    current = current->_pNext;
+                _tail = current;
+            }
+            _size = _size - last + first - 1;
         }
 
         void clear () override {
@@ -165,18 +169,22 @@ namespace gsl {
             return _size == 0;
         }
 
-        std::string to_string() const override {
-            std::string res;
-            res.append("[");
-            Node<T>* current = _head;
-            while (current->_pNext != nullptr){
-                res.append(std::to_string(current->_data));
-                res.append(", ");
+        std::string to_string() const { // Временная - O(N) Пространственная - O(N)
+            std::stringstream res;
+            res << "[";
+            auto *current = _head;
+            while (current->_pNext != nullptr) {
+                res << std::to_string(current->_data) << ", ";
                 current = current->_pNext;
             }
-            res.append(std::to_string(current->_data));
-            res.append("]");
-            return res;
+            res << std::to_string(current->_data) << "]";
+            return res.str();
+        }
+
+        void swap (linked_list& other){
+            std::swap(_head,other._head);
+            std::swap(_size,other._size);
+            std::swap(_tail,other._tail);
         }
 
         ~linked_list() {
@@ -194,6 +202,7 @@ namespace gsl {
     private:
         size_t _size;
         Node<T>* _head;
+        Node<T> *_tail;
     };
 
 }
