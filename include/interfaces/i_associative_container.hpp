@@ -6,7 +6,7 @@
 #define GSLIB_I_ASSOCIATIVE_CONTAINER_HPP
 
 #include "i_container.hpp"
-#include "pair.hpp"
+#include "utils/pair.hpp"
 
 namespace gsl {
     template<typename K, typename V>

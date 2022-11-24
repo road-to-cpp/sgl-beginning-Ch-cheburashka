@@ -7,8 +7,8 @@
 
 #include <interfaces/i_sequence_container.hpp>
 #include <iostream>
-#include <string>
 #include <sstream>
+#include <utils/exceptions.hpp>
 
 namespace gsl {
     template <typename T>
@@ -25,7 +25,7 @@ namespace gsl {
     public:
         explicit linked_list(): _size(0), _head(nullptr), _tail(_head){}
 
-        size_t size() const override {
+        [[nodiscard]] size_t size() const override {
             return _size;
         }
 
@@ -45,15 +45,19 @@ namespace gsl {
         }
 
         T &operator[](size_t i) override {
+            if (i > _size)
+                throw gsl::exceptions::out_of_range(i,_size);
             int cnt = 0;
             auto *current = _head;
             for (; current != nullptr; current = current->_pNext) {
                 if (i == cnt++)
-                    return current->_data;
+                  return current->_data;
             }
         }
 
         T &operator[](size_t i) const override {
+            if (i > _size)
+                throw gsl::exceptions::out_of_range(i,_size);
             int cnt = 0;
             auto* current = _head;
             for (; current != nullptr; current = current->_pNext) {
@@ -93,6 +97,8 @@ namespace gsl {
         }
 
         void insert(const T &value, size_t index) override {
+            if (index >= _size)
+                throw gsl::exceptions::out_of_range(index,_size);
             if (index == 0)
                 push_front(value);
             else {
@@ -107,6 +113,8 @@ namespace gsl {
         }
 
         void erase(size_t index) override {
+            if (index >= _size)
+                throw gsl::exceptions::out_of_range(index,_size);
             if (index == 0)
                 pop_front();
             else {
@@ -128,6 +136,10 @@ namespace gsl {
         }
 
         void erase(size_t first, size_t last) override {
+            if (first >= _size)
+                throw gsl::exceptions::out_of_range(first,_size);
+            if (last >= _size)
+                throw gsl::exceptions::out_of_range(last,_size);
             auto* previous = _head;
             for (size_t i = 0; i < first -1; i++){
                 previous = previous->_pNext;
@@ -165,7 +177,6 @@ namespace gsl {
 
         void resize(size_t new_size, const T &value) override {
             if (new_size > _size) {
-                size_t diff = new_size - _size;
                 for (int i = 0; i < new_size; i++)
                     push_back(value);
             }
@@ -179,19 +190,23 @@ namespace gsl {
             _size = new_size;
         }
 
-        bool empty() const override {
+        [[nodiscard]] bool empty() const override {
             return _size == 0;
         }
 
-        std::string to_string() const { // Временная - O(N) Пространственная - O(N)
+        [[nodiscard]] std::string to_string() const { // Временная - O(N) Пространственная - O(N)
             std::stringstream res;
-            res << "[";
-            auto *current = _head;
-            while (current->_pNext != nullptr) {
-                res << std::to_string(current->_data) << ", ";
-                current = current->_pNext;
+            if (_size == 0)
+                res << "[]";
+            else {
+                res << "[";
+                auto *current = _head;
+                while (current->_pNext != nullptr) {
+                    res << current->_data << ", ";
+                    current = current->_pNext;
+                }
+                res << current->_data << "]";
             }
-            res << std::to_string(current->_data) << "]";
             return res.str();
         }
 
