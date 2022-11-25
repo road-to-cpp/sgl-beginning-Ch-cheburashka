@@ -45,7 +45,7 @@ namespace gsl {
         }
 
         T &operator[](size_t i) override {
-            if (i > _size)
+            if (i >= _size)
                 throw gsl::exceptions::out_of_range(i,_size);
             int cnt = 0;
             auto *current = _head;
@@ -56,7 +56,7 @@ namespace gsl {
         }
 
         T &operator[](size_t i) const override {
-            if (i > _size)
+            if (i >= _size)
                 throw gsl::exceptions::out_of_range(i,_size);
             int cnt = 0;
             auto* current = _head;
@@ -165,11 +165,13 @@ namespace gsl {
 
         void resize(size_t new_size) override {
             if (new_size > _size) {
-                for (int i = 0; i < new_size; i++)
+                size_t diff = new_size - _size;
+                for (int i = 0; i < diff; i++)
                     push_back(T());
             }
             else {
-                for (int i = 0; i < new_size; i++)
+                size_t diff = _size - new_size;
+                for (int i = 0; i < diff; i++)
                     pop_back();
             }
             _size = new_size;
@@ -177,7 +179,8 @@ namespace gsl {
 
         void resize(size_t new_size, const T &value) override {
             if (new_size > _size) {
-                for (int i = 0; i < new_size; i++)
+                size_t diff = new_size - _size;
+                for (int i = 0; i < diff; i++)
                     push_back(value);
             }
             else {
