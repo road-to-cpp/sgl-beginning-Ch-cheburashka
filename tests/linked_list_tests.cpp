@@ -118,9 +118,9 @@ TEST_CASE("linked_list_tests") {
                     gsl::exceptions::out_of_range
             );
 
-            //REQUIRE(
-//                    pint_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pint_list.to_string() == "[3, 3, 3]"
+            );
         }
 
         SECTION("custom pointer") {
@@ -136,7 +136,7 @@ TEST_CASE("linked_list_tests") {
                     pts_list[3],
                     gsl::exceptions::out_of_range
             );
-            //            REQUIRE(
+//                        REQUIRE(
 //                    pts_list.to_string() == "[]"
 //            );
         }
@@ -191,10 +191,10 @@ TEST_CASE("linked_list_tests") {
                     pint_list[3],
                     gsl::exceptions::out_of_range
             );
-//
-//            REQUIRE(
-//                    pint_list.to_string() == "[]"
-//            );
+
+            REQUIRE(
+                    pint_list.to_string() == "[3, 3, 3, 3]"
+            );
         }
 
         SECTION("custom pointer") {
@@ -266,9 +266,9 @@ TEST_CASE("linked_list_tests") {
                     pint_list[2],
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pint_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pint_list.to_string() == "[3, 3]"
+            );
         }
 
         SECTION("custom pointer") {
@@ -339,9 +339,9 @@ TEST_CASE("linked_list_tests") {
                     pint_list[2],
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pint_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pint_list.to_string() == "[3, 3]"
+            );
         }
 
         SECTION("custom pointer") {
@@ -413,9 +413,9 @@ TEST_CASE("linked_list_tests") {
                     pint_list[6],
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pint_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pint_list.to_string() == "[3, 3, 3, 0, 0, 0]"
+            );
         }
 
         SECTION ("custom pointer"){
@@ -488,9 +488,9 @@ TEST_CASE("linked_list_tests") {
                     pint_list[6],
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pint_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pint_list.to_string() == "[3, 3, 3, 3, 3, 3]"
+            );
         }
 
         SECTION ("custom pointer") {
@@ -560,9 +560,9 @@ TEST_CASE("linked_list_tests") {
                     pint_list.insert(ptr, 4),
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pint_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pint_list.to_string() == "[3, 3, 3, 3]"
+            );
         }
 
         SECTION("custom pointer") {
@@ -631,9 +631,9 @@ TEST_CASE("linked_list_tests") {
                     pint_list.erase(3),
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pint_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pint_list.to_string() == "[4, 4, 4]"
+            );
         }
 
         SECTION("custom pointer") {
@@ -702,9 +702,9 @@ TEST_CASE("linked_list_tests") {
                     pint_list.erase(1,4),
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pint_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pint_list.to_string() == "[7, 7, 7, 7]"
+            );
         }
 
         SECTION("custom pointer") {
