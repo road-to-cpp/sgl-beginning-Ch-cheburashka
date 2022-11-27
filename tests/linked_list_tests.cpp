@@ -107,11 +107,11 @@ TEST_CASE("linked_list_tests") {
 
         SECTION("pointer") {
             gsl::linked_list<int *> pint_list;
-            int *ptr;
-            for (int i = 0; i < 3; i++) {
-                ptr = &i;
-                pint_list.push_back(ptr);
-            }
+            int* ptr1 = new int (3);
+            int* ptr2 = new int (4);
+            for (int i = 0; i<2;++i)
+                pint_list.push_back(ptr1);
+            pint_list.push_back(ptr2);
             REQUIRE(pint_list.size() == 3);
             REQUIRE_THROWS_AS(
                     pint_list[3],
@@ -119,16 +119,16 @@ TEST_CASE("linked_list_tests") {
             );
 
             REQUIRE(
-                    pint_list.to_string() == "[3, 3, 3]"
+                    pint_list.to_string() == "[3, 3, 4]"
             );
+            delete ptr1;
+            delete ptr2;
         }
 
         SECTION("custom pointer") {
             gsl::linked_list<test_struct *> pts_list;
-            test_struct *ts;
+            auto *ts = new test_struct (test_struct{});
             for (int i = 0; i < 3; i++) {
-                test_struct testStruct;
-                ts = &testStruct;
                 pts_list.push_back(ts);
             }
             REQUIRE(pts_list.size() == 3);
@@ -136,9 +136,9 @@ TEST_CASE("linked_list_tests") {
                     pts_list[3],
                     gsl::exceptions::out_of_range
             );
-//                        REQUIRE(
-//                    pts_list.to_string() == "[]"
-//            );
+                        REQUIRE(
+                    pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
+            );
         }
     }
 
@@ -179,30 +179,27 @@ TEST_CASE("linked_list_tests") {
 
         SECTION("pointer") {
             gsl::linked_list<int *> pint_list;
-            int *ptr;
-            for (int i = 0; i < 2; i++) {
-                ptr = &i;
-                pint_list.push_back(ptr);
-            }
-            REQUIRE(pint_list.size() == 2);
-            pint_list.push_front(ptr);
+            int* ptr1 = new int (3);
+            int* ptr2 = new int (4);
+            for (int i = 0; i<3;++i)
+                pint_list.push_back(ptr1);
             REQUIRE(pint_list.size() == 3);
+            pint_list.push_front(ptr2);
+            REQUIRE(pint_list.size() == 4);
             REQUIRE_THROWS_AS(
-                    pint_list[3],
+                    pint_list[4],
                     gsl::exceptions::out_of_range
             );
 
             REQUIRE(
-                    pint_list.to_string() == "[3, 3, 3, 3]"
+                    pint_list.to_string() == "[4, 3, 3, 3]"
             );
         }
 
         SECTION("custom pointer") {
             gsl::linked_list<test_struct *> pts_list;
-            test_struct *ts;
+            auto *ts = new test_struct (test_struct{});
             for (int i = 0; i < 2; i++) {
-                test_struct testStruct;
-                ts = &testStruct;
                 pts_list.push_back(ts);
             }
             REQUIRE(pts_list.size() == 2);
@@ -212,9 +209,9 @@ TEST_CASE("linked_list_tests") {
                     pts_list[3],
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pts_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
+            );
         }
     }
 
@@ -254,12 +251,12 @@ TEST_CASE("linked_list_tests") {
         }
 
         SECTION("pointer") {
+
             gsl::linked_list<int *> pint_list;
-            int *ptr;
-            for (int i = 0; i < 3; i++) {
-                ptr = &i;
-                pint_list.push_back(ptr);
-            }
+            int* ptr1 = new int (3);
+            for (int i = 0; i<3;++i)
+                pint_list.push_back(ptr1);
+
             REQUIRE(pint_list.size() == 3);
             pint_list.pop_back();
             REQUIRE_THROWS_AS(
@@ -273,10 +270,8 @@ TEST_CASE("linked_list_tests") {
 
         SECTION("custom pointer") {
             gsl::linked_list<test_struct *> pts_list;
-            test_struct *ts;
+            auto *ts = new test_struct (test_struct{});
             for (int i = 0; i < 3; i++) {
-                test_struct testStruct;
-                ts = &testStruct;
                 pts_list.push_back(ts);
             }
             REQUIRE(pts_list.size() == 3);
@@ -285,9 +280,9 @@ TEST_CASE("linked_list_tests") {
                     pts_list[2],
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pint_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }]"
+            );
         }
     }
 
@@ -328,13 +323,12 @@ TEST_CASE("linked_list_tests") {
 
         SECTION("pointer") {
             gsl::linked_list<int *> pint_list;
-            int *ptr;
-            for (int i = 0; i < 3; i++) {
-                ptr = &i;
-                pint_list.push_back(ptr);
-            }
+            int* ptr1 = new int (3);
+            for (int i = 0; i<3;++i)
+                pint_list.push_back(ptr1);
             REQUIRE(pint_list.size() == 3);
             pint_list.pop_front();
+            REQUIRE(pint_list.size() == 2);
             REQUIRE_THROWS_AS(
                     pint_list[2],
                     gsl::exceptions::out_of_range
@@ -346,10 +340,8 @@ TEST_CASE("linked_list_tests") {
 
         SECTION("custom pointer") {
             gsl::linked_list<test_struct *> pts_list;
-            test_struct *ts;
+            auto *ts = new test_struct (test_struct{});
             for (int i = 0; i < 3; i++) {
-                test_struct testStruct;
-                ts = &testStruct;
                 pts_list.push_back(ts);
             }
             REQUIRE(pts_list.size() == 3);
@@ -358,9 +350,9 @@ TEST_CASE("linked_list_tests") {
                     pts_list[2],
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pts_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }]"
+            );
         }
     }
 
@@ -401,11 +393,9 @@ TEST_CASE("linked_list_tests") {
 
         SECTION("pointer") {
             gsl::linked_list<int *> pint_list;
-            int *ptr;
-            for (int i = 0; i < 3; i++) {
-                ptr = &i;
-                pint_list.push_back(ptr);
-            }
+            int* ptr1 = new int (3);
+            for (int i = 0; i<3;++i)
+                pint_list.push_back(ptr1);
             REQUIRE(pint_list.size() == 3);
             pint_list.resize(6);
             REQUIRE(pint_list.size() == 6);
@@ -420,10 +410,8 @@ TEST_CASE("linked_list_tests") {
 
         SECTION ("custom pointer"){
             gsl::linked_list<test_struct *> pts_list;
-            test_struct *ts;
+            auto *ts = new test_struct (test_struct{});
             for (int i = 0; i < 3; i++) {
-                test_struct testStruct;
-                ts = &testStruct;
                 pts_list.push_back(ts);
             }
             REQUIRE(pts_list.size() == 3);
@@ -433,9 +421,9 @@ TEST_CASE("linked_list_tests") {
                     pts_list[6],
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pts_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
+            );
         }
     }
 
@@ -476,13 +464,11 @@ TEST_CASE("linked_list_tests") {
 
         SECTION("pointer") {
             gsl::linked_list<int *> pint_list;
-            int *ptr;
-            for (int i = 0; i < 3; i++) {
-                ptr = &i;
-                pint_list.push_back(ptr);
-            }
+            int* ptr1 = new int (3);
+            for (int i = 0; i<3;++i)
+                pint_list.push_back(ptr1);
             REQUIRE(pint_list.size() == 3);
-            pint_list.resize(6,ptr);
+            pint_list.resize(6,ptr1);
             REQUIRE(pint_list.size() == 6);
             REQUIRE_THROWS_AS(
                     pint_list[6],
@@ -495,10 +481,8 @@ TEST_CASE("linked_list_tests") {
 
         SECTION ("custom pointer") {
             gsl::linked_list<test_struct *> pts_list;
-            test_struct *ts;
+            auto *ts = new test_struct (test_struct{});
             for (int i = 0; i < 3; i++) {
-                test_struct testStruct;
-                ts = &testStruct;
                 pts_list.push_back(ts);
             }
             REQUIRE(pts_list.size() == 3);
@@ -508,9 +492,9 @@ TEST_CASE("linked_list_tests") {
                     pts_list[6],
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pts_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
+            );
         }
     }
 
@@ -548,29 +532,26 @@ TEST_CASE("linked_list_tests") {
 
         SECTION("pointer") {
             gsl::linked_list<int *> pint_list;
-            int *ptr;
-            for (int i = 0; i < 3; i++) {
-                ptr = &i;
-                pint_list.push_back(ptr);
-            }
+            int* ptr1 = new int (3);
+            int* ptr2 = new int (4);
+            for (int i = 0; i<3;++i)
+                pint_list.push_back(ptr1);
             REQUIRE(pint_list.size() == 3);
-            pint_list.insert(ptr, 1);
+            pint_list.insert(ptr2, 1);
             REQUIRE(pint_list.size() == 4);
             REQUIRE_THROWS_AS(
-                    pint_list.insert(ptr, 4),
+                    pint_list.insert(ptr2, 4),
                     gsl::exceptions::out_of_range
             );
             REQUIRE(
-                    pint_list.to_string() == "[3, 3, 3, 3]"
+                    pint_list.to_string() == "[3, 4, 3, 3]"
             );
         }
 
         SECTION("custom pointer") {
             gsl::linked_list<test_struct *> pts_list;
-            test_struct *ts;
+            auto *ts = new test_struct (test_struct{});
             for (int i = 0; i < 3; i++) {
-                test_struct testStruct;
-                ts = &testStruct;
                 pts_list.push_back(ts);
             }
             REQUIRE(pts_list.size() == 3);
@@ -580,9 +561,9 @@ TEST_CASE("linked_list_tests") {
                     pts_list.insert(ts, 4),
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pts_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
+            );
         }
     }
 
@@ -619,11 +600,9 @@ TEST_CASE("linked_list_tests") {
 
         SECTION("pointer") {
             gsl::linked_list<int *> pint_list;
-            int *ptr;
-            for (int i = 0; i < 4; i++) {
-                ptr = &i;
-                pint_list.push_back(ptr);
-            }
+            int* ptr1 = new int (3);
+            for (int i = 0; i<4;++i)
+                pint_list.push_back(ptr1);
             REQUIRE(pint_list.size() == 4);
             pint_list.erase(1);
             REQUIRE(pint_list.size() == 3);
@@ -632,16 +611,14 @@ TEST_CASE("linked_list_tests") {
                     gsl::exceptions::out_of_range
             );
             REQUIRE(
-                    pint_list.to_string() == "[4, 4, 4]"
+                    pint_list.to_string() == "[3, 3, 3]"
             );
         }
 
         SECTION("custom pointer") {
             gsl::linked_list<test_struct *> pts_list;
-            test_struct *ts;
+            auto *ts = new test_struct (test_struct{});
             for (int i = 0; i < 4; i++) {
-                test_struct testStruct;
-                ts = &testStruct;
                 pts_list.push_back(ts);
             }
             REQUIRE(pts_list.size() == 4);
@@ -651,9 +628,9 @@ TEST_CASE("linked_list_tests") {
                     pts_list.erase(4),
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pts_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
+            );
         }
     }
 
@@ -690,11 +667,9 @@ TEST_CASE("linked_list_tests") {
 
         SECTION("pointer") {
             gsl::linked_list<int *> pint_list;
-            int *ptr;
-            for (int i = 0; i < 7; i++) {
-                ptr = &i;
-                pint_list.push_back(ptr);
-            }
+            int* ptr1 = new int (3);
+            for (int i = 0; i<7;++i)
+                pint_list.push_back(ptr1);
             REQUIRE(pint_list.size() == 7);
             pint_list.erase(2,4);
             REQUIRE(pint_list.size() == 4);
@@ -703,16 +678,14 @@ TEST_CASE("linked_list_tests") {
                     gsl::exceptions::out_of_range
             );
             REQUIRE(
-                    pint_list.to_string() == "[7, 7, 7, 7]"
+                    pint_list.to_string() == "[3, 3, 3, 3]"
             );
         }
 
         SECTION("custom pointer") {
             gsl::linked_list<test_struct *> pts_list;
-            test_struct *ts;
+            auto *ts = new test_struct (test_struct{});
             for (int i = 0; i < 7; i++) {
-                test_struct testStruct;
-                ts = &testStruct;
                 pts_list.push_back(ts);
             }
             REQUIRE(pts_list.size() == 7);
@@ -722,9 +695,9 @@ TEST_CASE("linked_list_tests") {
                     pts_list.erase(1,4),
                     gsl::exceptions::out_of_range
             );
-//            REQUIRE(
-//                    pts_list.to_string() == "[]"
-//            );
+            REQUIRE(
+                    pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
+            );
         }
     }
 
