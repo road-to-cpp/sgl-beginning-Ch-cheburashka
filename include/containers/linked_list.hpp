@@ -234,6 +234,7 @@ namespace gsl {
         Node<T> *_tail;
     };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     template <typename T>
     class Node <T*> {
@@ -242,7 +243,6 @@ namespace gsl {
         T* _data;
         explicit Node(T* data = nullptr,Node * pNext = nullptr): _data(data), _pNext(pNext){}
     };
-
 
     template<typename T>
     class linked_list <T*>{
@@ -399,10 +399,19 @@ namespace gsl {
                 res << "[";
                 auto *current = _head;
                 while (current->_pNext != nullptr) {
-                    res << *current->_data << ", ";
-                    current = current->_pNext;
+                    if (current->_data != nullptr) {
+                        res << *current->_data << ", ";
+                        current = current->_pNext;
+                    }
+                    else if (current->_data == nullptr) {
+                        res << "nullptr, ";
+                        current = current->_pNext;
+                    }
                 }
-                res << *current->_data << "]";
+                if (current->_data != nullptr)
+                    res << *current->_data << "]";
+                else
+                    res << "nullptr]";
             }
             return res.str();
         }
@@ -410,7 +419,7 @@ namespace gsl {
         void resize(size_t new_size)  {
             if (new_size > _size) {
                 size_t diff = new_size - _size;
-                T* in = new T;
+                T* in = nullptr;
                 for (int i = 0; i < diff; i++)
                     push_back(in);
             }
@@ -442,6 +451,10 @@ namespace gsl {
             os << ls.to_string();
             return os;
         }
+
+        ~linked_list() {
+            clear();
+        };
 
     private:
         size_t _size;

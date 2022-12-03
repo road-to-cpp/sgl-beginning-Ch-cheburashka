@@ -4,7 +4,7 @@
 
 #ifndef GSLIB_VECTOR_HPP
 #define GSLIB_VECTOR_HPP
-#include <string>
+#include <sstream>
 #include <interfaces/i_sequence_container.hpp>
 #include <interfaces/i_iterator.hpp>
 #include <iostream>
@@ -14,7 +14,7 @@ namespace gsl {
     public:
         class iterator : public i_iterator<T>{
         public:
-            iterator(T* ptr = nullptr): _ptr(ptr){}
+            explicit iterator(T* ptr = nullptr): _ptr(ptr){}
 
             T &operator*() override {
                 return *_ptr;
@@ -41,13 +41,13 @@ namespace gsl {
                 _data[i] = value;
             }
         }
-        size_t size () const override {
+        [[nodiscard]] size_t size () const override {
            return _size;
         }
         T * data () const {
             return _data;
         }
-        size_t capacity () const {
+        [[nodiscard]] size_t capacity () const {
             return _capacity;
         }
 
@@ -180,33 +180,23 @@ namespace gsl {
             _data = temp;
         }
 
-        std::string to_string() const override {
-            std::string res;
-            res.append("[");
-            for (size_t i = 0;i<_size;i++){
-                if(i<_size-1){
-                    res.append(std::to_string(_data[i]));
-                    res.append(", ");
+        [[nodiscard]] std::string to_string() const override {
+            std::stringstream res;
+            if (_size == 0)
+                res << "[]";
+            else {
+                res << "[";
+                for (size_t i = 0; i < _size; i++) {
+                    if (i < _size - 1) {
+                        res << _data[i];
+                        res << ", ";
+                    } else
+                        res << _data[i];
                 }
-                else
-                    res.append(std::to_string(_data[i]));
+                res << "]";
+                return res.str();
             }
-            res.append("]");
-            return res;
         }
-        vector & operator=(vector const &other)  {
-            if (this != &other) {
-                delete[] _data;
-                _capacity = other._capacity;
-                _size = other._size;
-                _data = new T[_size];
-                for (int i = 0; i < _size; i++) {
-                    _data[i] = other._data[i];
-                }
-            }
-            return *this;
-        }
-
         void swap (vector &other, bool optimised = true) {
 
             if (optimised){
@@ -241,7 +231,7 @@ namespace gsl {
 
         }
 
-        bool empty () const override {
+        [[nodiscard]] bool empty () const override {
             return _size == 0;
         }
 
@@ -258,10 +248,7 @@ namespace gsl {
             delete [] _data;
         }
         friend std::ostream &operator<<(std::ostream &os, const vector &vec) {
-            for (int i = 0; i < vec._size; i++) {
-                os << vec._data[i] << " ";
-            }
-            os << '\n';
+            os << vec.to_string();
             return os;
         }
 
@@ -269,6 +256,200 @@ namespace gsl {
         size_t _size;
         size_t _capacity;
         T* _data;
+    };
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+    template <typename T>
+    class vector<T*> {
+    public:
+        explicit vector(size_t size = 0, T *value = nullptr) : _size(size), _capacity(size+1), _data(new T*[size]) {
+            for (int i = 0; i < size; i++) {
+                _data[i] = value;
+            }
+        }
+        [[nodiscard]] size_t size () const {
+            return _size;
+        }
+        T ** data () const {
+            return _data;
+        }
+        [[nodiscard]] size_t capacity () const {
+            return _capacity;
+        }
+
+        T* front() {
+            return *_data;
+        }
+        const T* front() const {
+            return *_data;
+        }
+
+        const T* back() const {
+            return _data[_size-1];
+        }
+
+        T* back() {
+            return _data[_size-1];
+        }
+
+        T* operator[](size_t i) {
+            return _data[i];
+        }
+
+        T* operator[](size_t i) const {
+            return _data[i];
+        }
+
+        void resize(size_t new_size) {
+            T** temp = new T*[new_size];
+            for (int i = 0; i < _size; i++) {
+                temp[i] = std::move(_data[i]);
+            }
+            _capacity = new_size;
+            delete[] _data;
+            _data = temp;
+        }
+
+        void resize(size_t new_size, T* value)  {
+            T** temp = new T*[new_size];
+            for (int i = 0; i < _size; i++) {
+                temp[i] = std::move(_data[i]);
+            }
+            for (int j = 0; j<new_size;j++){
+                temp[j+_size] = std::move(value);
+            }
+            _capacity = new_size;
+            _size = new_size;
+            delete[] _data;
+            _data = temp;
+        }
+
+        void push_back(T* value) {
+            if (_size >= _capacity){
+                resize(_capacity * 2);
+            }
+            _data[_size++] = std::move(value);
+        }
+
+        void push_front(T* value) {
+            if (_size >= _capacity){
+                resize(_capacity * 2);
+            }
+            T** temp = new T*[_capacity];
+            temp[0] = value;
+            for (int i = 0; i<_size; i++){
+                temp[i+1] = _data[i];
+            }
+            delete [] _data;
+            _data = temp;
+            _size++;
+        }
+
+        void pop_back () {
+            T** temp = new T*[_capacity];
+            for (int i = 0; i < _size - 1; ++i)
+                temp[i] = std::move(_data[i]);
+            delete[] _data;
+            _data = temp;
+            _size--;
+        }
+
+        void pop_front() {
+            T** temp = new T*[_capacity];
+            for (int i =1; i<_size;i++){
+                temp[i-1] = _data[i];
+            }
+            delete [] _data;
+            _data = temp;
+            _size--;
+        }
+
+        void clear () {
+            for (int i =_size;i>0;i--){
+                pop_back();
+            }
+        }
+
+        void insert (T* value, size_t index) {
+            if (_size >= _capacity){
+                resize(_capacity * 2);
+            }
+            T** temp = new T* [_capacity];
+            for (int i = 0; i<index;i++){
+                temp [i] = std::move(_data[i]);
+            }
+            temp[index] = std::move(value);
+            _size++;
+            for (size_t i = index+1;i<_size;i++){
+                temp[i] = std::move(_data[i-1]);
+            }
+            delete [] _data;
+            _data = temp;
+        }
+
+        void erase(size_t index) {
+            T** temp = new T* [_capacity];
+            _size--;
+            for (int i =0;i<index;i++){
+                temp[i] = std::move(_data[i]);
+            }
+            for (size_t i = index;i<_size;i++){
+                temp[i] = std::move(_data[i+1]);
+            }
+            delete [] _data;
+            _data = temp;
+        }
+
+        void erase(size_t first, size_t last) {
+            T** temp = new T* [_capacity];
+            size_t dif = last - first + 1;
+            _size = _size - dif;
+            for (int i = 0;i<first;i++){
+                temp[i] = std::move(_data[i]);
+            }
+            for (size_t i = first;i<_size;i++){
+                temp[i] = std::move(_data[i+dif]);
+            }
+            delete [] _data;
+            _data = temp;
+        }
+
+        [[nodiscard]] std::string to_string() const {
+            std::stringstream res;
+            if (_size == 0)
+                res << "[]";
+            else {
+                res << "[";
+                for (size_t i = 0; i < _size; i++) {
+                    if (i < _size - 1) {
+                        res << *_data[i];
+                        res << ", ";
+                    } else
+                        res << *_data[i];
+                }
+                res << "]";
+            }
+            return res.str();
+        }
+
+        void swap (vector &other) {
+            std::swap(_data, other._data);
+            std::swap(_size, other._size);
+            std::swap(_capacity, other._capacity);
+        }
+
+        friend std::ostream &operator<<(std::ostream &os, const vector &vec) {
+            os << vec.to_string();
+            return os;
+        }
+
+        ~vector() {
+            delete [] _data;
+        }
+    private:
+        size_t _size;
+        size_t _capacity;
+        T** _data;
     };
 
     template <>

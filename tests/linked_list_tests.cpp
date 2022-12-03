@@ -139,6 +139,7 @@ TEST_CASE("linked_list_tests") {
                         REQUIRE(
                     pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
             );
+            delete ts;
         }
     }
 
@@ -194,6 +195,8 @@ TEST_CASE("linked_list_tests") {
             REQUIRE(
                     pint_list.to_string() == "[4, 3, 3, 3]"
             );
+            delete ptr1;
+            delete ptr2;
         }
 
         SECTION("custom pointer") {
@@ -212,6 +215,7 @@ TEST_CASE("linked_list_tests") {
             REQUIRE(
                     pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
             );
+            delete ts;
         }
     }
 
@@ -266,6 +270,7 @@ TEST_CASE("linked_list_tests") {
             REQUIRE(
                     pint_list.to_string() == "[3, 3]"
             );
+            delete ptr1;
         }
 
         SECTION("custom pointer") {
@@ -283,6 +288,7 @@ TEST_CASE("linked_list_tests") {
             REQUIRE(
                     pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }]"
             );
+            delete ts;
         }
     }
 
@@ -336,6 +342,7 @@ TEST_CASE("linked_list_tests") {
             REQUIRE(
                     pint_list.to_string() == "[3, 3]"
             );
+            delete ptr1;
         }
 
         SECTION("custom pointer") {
@@ -353,6 +360,7 @@ TEST_CASE("linked_list_tests") {
             REQUIRE(
                     pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }]"
             );
+            delete ts;
         }
     }
 
@@ -397,15 +405,16 @@ TEST_CASE("linked_list_tests") {
             for (int i = 0; i<3;++i)
                 pint_list.push_back(ptr1);
             REQUIRE(pint_list.size() == 3);
-            pint_list.resize(6);
-            REQUIRE(pint_list.size() == 6);
+            pint_list.resize(5);
+            REQUIRE(pint_list.size() == 5);
             REQUIRE_THROWS_AS(
                     pint_list[6],
                     gsl::exceptions::out_of_range
             );
             REQUIRE(
-                    pint_list.to_string() == "[3, 3, 3, 0, 0, 0]"
+                    pint_list.to_string() == "[3, 3, 3, nullptr, nullptr]"
             );
+            delete ptr1;
         }
 
         SECTION ("custom pointer"){
@@ -422,8 +431,9 @@ TEST_CASE("linked_list_tests") {
                     gsl::exceptions::out_of_range
             );
             REQUIRE(
-                    pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
+                    pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, nullptr, nullptr, nullptr]"
             );
+            delete ts;
         }
     }
 
@@ -477,6 +487,7 @@ TEST_CASE("linked_list_tests") {
             REQUIRE(
                     pint_list.to_string() == "[3, 3, 3, 3, 3, 3]"
             );
+            delete ptr1;
         }
 
         SECTION ("custom pointer") {
@@ -495,6 +506,7 @@ TEST_CASE("linked_list_tests") {
             REQUIRE(
                     pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
             );
+            delete ts;
         }
     }
 
@@ -546,6 +558,8 @@ TEST_CASE("linked_list_tests") {
             REQUIRE(
                     pint_list.to_string() == "[3, 4, 3, 3]"
             );
+            delete ptr1;
+            delete ptr2;
         }
 
         SECTION("custom pointer") {
@@ -564,6 +578,7 @@ TEST_CASE("linked_list_tests") {
             REQUIRE(
                     pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
             );
+            delete ts;
         }
     }
 
@@ -613,6 +628,7 @@ TEST_CASE("linked_list_tests") {
             REQUIRE(
                     pint_list.to_string() == "[3, 3, 3]"
             );
+            delete ptr1;
         }
 
         SECTION("custom pointer") {
@@ -631,6 +647,7 @@ TEST_CASE("linked_list_tests") {
             REQUIRE(
                     pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
             );
+            delete ts;
         }
     }
 
@@ -680,6 +697,7 @@ TEST_CASE("linked_list_tests") {
             REQUIRE(
                     pint_list.to_string() == "[3, 3, 3, 3]"
             );
+            delete ptr1;
         }
 
         SECTION("custom pointer") {
@@ -698,6 +716,7 @@ TEST_CASE("linked_list_tests") {
             REQUIRE(
                     pts_list.to_string() == "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
             );
+            delete ts;
         }
     }
 

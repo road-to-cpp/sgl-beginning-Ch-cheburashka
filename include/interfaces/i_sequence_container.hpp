@@ -17,7 +17,6 @@ namespace gsl {
 
         virtual void push_front(const T &value) = 0;
 
-
         virtual void pop_back() = 0;
 
         virtual void pop_front() = 0;
