@@ -4,27 +4,31 @@
 
 #include <iostream>
 #include <containers/vector.hpp>
+#include <containers/linked_list.hpp>
+
+struct test_struct {
+    int value = 10;
+    bool flag = true;
+
+    bool operator==(test_struct const &other) const {
+        return value == other.value && flag == other.flag;
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, test_struct const &ts) {
+        os << "{ value: " << ts.value << " flag: " << ts.flag << " }";
+        return os;
+    }
+};
 
 int main () {
-    gsl::vector<int> vector_int;
-    vector_int.push_back(1);
-    for (int i = 0;i < 3;i++){
-        vector_int.push_back(6);
-    }
-    vector_int.push_back(7);
-    std::cout << "size: " << vector_int.size() << std::endl;
-    std::cout << "capacity: " << vector_int.capacity() << std::endl;
-    std::cout << vector_int << std::endl;
 
-    vector_int.insert(8,3);
-    std::cout << "size: " << vector_int.size() << std::endl;
-    std::cout << "capacity: " << vector_int.capacity() << std::endl;
-    std::cout << vector_int << std::endl;
-
-    vector_int.erase(2,3);
-    std::cout << "size: " << vector_int.size() << std::endl;
-    std::cout << "capacity: " << vector_int.capacity() << std::endl;
-    std::cout << vector_int;
+    gsl::vector<int> vec (2,2);
+    std::cout << vec << std::endl;
+    std::cout << "\n\nRESIZE\n\n";
+    vec.resize(6,5);
+    std::cout << vec;
 
     return 0;
 }
+
+

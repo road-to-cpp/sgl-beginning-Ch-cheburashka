@@ -7,6 +7,7 @@
 #include <sstream>
 #include <interfaces/i_sequence_container.hpp>
 #include <interfaces/i_iterator.hpp>
+#include <utils/exceptions.hpp>
 #include <iostream>
 namespace gsl {
     template<typename T>
@@ -42,7 +43,7 @@ namespace gsl {
             }
         }
         [[nodiscard]] size_t size () const override {
-           return _size;
+            return _size;
         }
         T * data () const {
             return _data;
@@ -188,14 +189,17 @@ namespace gsl {
                 res << "[";
                 for (size_t i = 0; i < _size; i++) {
                     if (i < _size - 1) {
-                        res << _data[i];
-                        res << ", ";
-                    } else
-                        res << _data[i];
+                        std::cout << "getting data" << std::endl;
+                        res << _data[i] << ", ";
+                        std::cout << "got data" << std::endl;
+                    }
+                    else {
+                        res << _data[i] << "]";
+                        std::cout << "got last data" << std::endl;
+                    }
                 }
-                res << "]";
-                return res.str();
             }
+            return res.str();
         }
         void swap (vector &other, bool optimised = true) {
 
@@ -293,10 +297,14 @@ namespace gsl {
         }
 
         T* operator[](size_t i) {
+            if (i >= _size)
+                throw gsl::exceptions::out_of_range(i,_size);
             return _data[i];
         }
 
         T* operator[](size_t i) const {
+            if (i >= _size)
+                throw gsl::exceptions::out_of_range(i,_size);
             return _data[i];
         }
 
@@ -371,6 +379,8 @@ namespace gsl {
         }
 
         void insert (T* value, size_t index) {
+            if (index >= _size)
+                throw gsl::exceptions::out_of_range(index,_size);
             if (_size >= _capacity){
                 resize(_capacity * 2);
             }
@@ -388,6 +398,8 @@ namespace gsl {
         }
 
         void erase(size_t index) {
+            if (index >= _size)
+                throw gsl::exceptions::out_of_range(index,_size);
             T** temp = new T* [_capacity];
             _size--;
             for (int i =0;i<index;i++){
@@ -401,6 +413,10 @@ namespace gsl {
         }
 
         void erase(size_t first, size_t last) {
+            if (first >= _size)
+                throw gsl::exceptions::out_of_range(first,_size);
+            if (last >= _size)
+                throw gsl::exceptions::out_of_range(last,_size);
             T** temp = new T* [_capacity];
             size_t dif = last - first + 1;
             _size = _size - dif;
@@ -436,6 +452,10 @@ namespace gsl {
             std::swap(_data, other._data);
             std::swap(_size, other._size);
             std::swap(_capacity, other._capacity);
+        }
+
+        [[nodiscard]] bool empty () const {
+            return _size == 0;
         }
 
         friend std::ostream &operator<<(std::ostream &os, const vector &vec) {

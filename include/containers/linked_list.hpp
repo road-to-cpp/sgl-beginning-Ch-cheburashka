@@ -416,6 +416,7 @@ namespace gsl {
             return res.str();
         }
 
+
         void resize(size_t new_size)  {
             if (new_size > _size) {
                 size_t diff = new_size - _size;

@@ -1,5 +1,5 @@
 //
-// Created by Никита on 22.11.2022.
+// Created by MrMam on 22.11.2022.
 //
 
 #ifndef GSLIB_EXCEPTIONS_HPP

@@ -77,9 +77,8 @@ TEST_CASE("linked_list_tests") {
     SECTION("Push_back test") {
         SECTION("integer") {
             gsl::linked_list<int> int_list;
-            for (int i = 0; i < 3; ++i) {
+            for (int i = 0; i < 3; ++i)
                 int_list.push_back(i);
-            }
             REQUIRE(int_list.size() == 3);
             REQUIRE_THROWS_AS(
                     int_list[3],
