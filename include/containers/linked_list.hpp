@@ -15,8 +15,8 @@ namespace gsl {
 
     class Node{
     public:
-        Node *_pNext;
         T _data;
+        Node *_pNext;
         explicit Node(T data = T(),Node * pNext = nullptr): _data(data), _pNext(pNext){}
     };
 
@@ -47,23 +47,25 @@ namespace gsl {
         T &operator[](size_t i) override {
             if (i >= _size)
                 throw gsl::exceptions::out_of_range(i,_size);
-            int cnt = 0;
+            size_t cnt = 0;
             auto *current = _head;
             for (; current != nullptr; current = current->_pNext) {
                 if (i == cnt++)
-                  return current->_data;
+                  break;
             }
+            return current->_data;
         }
 
         T &operator[](size_t i) const override {
             if (i >= _size)
                 throw gsl::exceptions::out_of_range(i,_size);
-            int cnt = 0;
+            size_t cnt = 0;
             auto* current = _head;
             for (; current != nullptr; current = current->_pNext) {
                 if (i == cnt++)
-                    return current->_data;
+                    break;
             }
+            return current->_data;
         }
 
         void push_back (const T &value) override {
@@ -166,12 +168,12 @@ namespace gsl {
         void resize(size_t new_size) override {
             if (new_size > _size) {
                 size_t diff = new_size - _size;
-                for (int i = 0; i < diff; i++)
+                for (size_t i = 0; i < diff; i++)
                     push_back(T());
             }
             else {
                 size_t diff = _size - new_size;
-                for (int i = 0; i < diff; i++)
+                for (size_t i = 0; i < diff; i++)
                     pop_back();
             }
             _size = new_size;
@@ -180,14 +182,14 @@ namespace gsl {
         void resize(size_t new_size, const T &value) override {
             if (new_size > _size) {
                 size_t diff = new_size - _size;
-                for (int i = 0; i < diff; i++)
+                for (size_t i = 0; i < diff; i++)
                     push_back(value);
             }
             else {
                 size_t diff = _size - new_size;
-                for (int i = 0; i < diff; i++)
+                for (size_t i = 0; i < diff; i++)
                     pop_back();
-                for (int i = 0; i < new_size; i++)
+                for (size_t i = 0; i < new_size; i++)
                     push_front(value);
             }
             _size = new_size;
@@ -197,7 +199,7 @@ namespace gsl {
             return _size == 0;
         }
 
-        [[nodiscard]] std::string to_string() const { // Временная - O(N) Пространственная - O(N)
+        [[nodiscard]] std::string to_string() const override { // Временная - O(N) Пространственная - O(N)
             std::stringstream res;
             if (_size == 0)
                 res << "[]";
@@ -239,8 +241,8 @@ namespace gsl {
     template <typename T>
     class Node <T*> {
     public:
-        Node *_pNext;
         T* _data;
+        Node *_pNext;
         explicit Node(T* data = nullptr,Node * pNext = nullptr): _data(data), _pNext(pNext){}
     };
 
@@ -252,23 +254,25 @@ namespace gsl {
         T *operator[](size_t i) {
             if (i >= _size)
                 throw gsl::exceptions::out_of_range(i,_size);
-            int cnt = 0;
+            size_t cnt = 0;
             auto *current = _head;
             for (; current != nullptr; current = current->_pNext) {
                 if (i == cnt++)
-                    return current->_data;
+                  break;
             }
+            return current->_data;
         }
 
         T *operator[](size_t i) const {
             if (i >= _size)
                 throw gsl::exceptions::out_of_range(i,_size);
-            int cnt = 0;
+            size_t cnt = 0;
             auto *current = _head;
             for (; current != nullptr; current = current->_pNext) {
                 if (i == cnt++)
-                    return current->_data;
+                    break;
             }
+            return current->_data;
         }
 
         [[nodiscard]] size_t size() const {
@@ -421,12 +425,12 @@ namespace gsl {
             if (new_size > _size) {
                 size_t diff = new_size - _size;
                 T* in = nullptr;
-                for (int i = 0; i < diff; i++)
+                for (size_t i = 0; i < diff; i++)
                     push_back(in);
             }
             else {
                 size_t diff = _size - new_size;
-                for (int i = 0; i < diff; i++)
+                for (size_t i = 0; i < diff; i++)
                     pop_back();
             }
             _size = new_size;
@@ -435,14 +439,14 @@ namespace gsl {
         void resize(size_t new_size, T *value)  {
             if (new_size > _size) {
                 size_t diff = new_size - _size;
-                for (int i = 0; i < diff; i++)
+                for (size_t i = 0; i < diff; i++)
                     push_back(value);
             }
             else {
                 size_t diff = _size - new_size;
-                for (int i = 0; i < diff; i++)
+                for (size_t i = 0; i < diff; i++)
                     pop_back();
-                for (int i = 0; i < new_size; i++)
+                for (size_t i = 0; i < new_size; i++)
                     push_front(value);
             }
             _size = new_size;

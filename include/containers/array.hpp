@@ -40,7 +40,7 @@ namespace gsl {
            std::swap(_data,other._data);
            std::swap(_size, other._size);
        }
-       size_t size() const override {
+       [[nodiscard]] size_t size() const override {
            return _size;
        }
 
@@ -48,11 +48,11 @@ namespace gsl {
            return _data;
        }
 
-       bool empty() const override {
+       [[nodiscard]] bool empty() const override {
            return _size == 0;
        }
 
-       std::string to_string() const override {
+       [[nodiscard]] std::string to_string() const override {
            std::string res;
            res.append("[");
            for (size_t i = 0;i<_size;i++){

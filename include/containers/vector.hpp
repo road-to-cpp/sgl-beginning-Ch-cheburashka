@@ -38,7 +38,7 @@ namespace gsl {
         };
 
         explicit vector(size_t size = 0, const T &value = T()) : _size(size), _capacity(size+1), _data(new T[size]) {
-            for (int i = 0; i < size; i++) {
+            for (size_t i = 0; i < size; i++) {
                 _data[i] = value;
             }
         }
@@ -69,7 +69,7 @@ namespace gsl {
 
         void resize(size_t new_size) override {
             T *temp = new T[new_size];
-            for (int i = 0; i < _size; i++) {
+            for (size_t i = 0; i < _size; i++) {
                 temp[i] = std::move(_data[i]);
             }
             _capacity = new_size;
@@ -79,11 +79,11 @@ namespace gsl {
 
         void resize(size_t new_size, const T &value) override {
             T *temp = new T[new_size];
-            for (int i = 0; i < _size; i++) {
+            for (size_t i = 0; i < _size; i++) {
                 temp[i] = std::move(_data[i]);
             }
-            for (int j = 0; j<new_size;j++){
-                temp[j+_size] = std::move(value);
+            for (size_t j = _size; j<new_size;j++){
+                temp[j] = std::move(value);
             }
             _capacity = new_size;
             _size = new_size;
@@ -104,7 +104,7 @@ namespace gsl {
             }
             T* temp = new T[_capacity];
             temp[0] = value;
-            for (int i = 0; i<_size; i++){
+            for (size_t i = 0; i<_size; i++){
                 temp[i+1] = _data[i];
             }
             delete [] _data;
@@ -114,7 +114,7 @@ namespace gsl {
 
         void pop_back () override {
             T *temp = new T[_capacity];
-            for (int i = 0; i < _size - 1; ++i)
+            for (size_t i = 0; i < _size - 1; ++i)
                 temp[i] = std::move(_data[i]);
             delete[] _data;
             _data = temp;
@@ -123,7 +123,7 @@ namespace gsl {
 
         void pop_front() override {
             T *temp = new T[_capacity];
-            for (int i =1; i<_size;i++){
+            for (size_t i =1; i<_size;i++){
                 temp[i-1] = _data[i];
             }
             delete [] _data;
@@ -132,17 +132,19 @@ namespace gsl {
         }
 
         void clear () override {
-            for (int i =_size;i>0;i--){
+            for (size_t i =_size;i>0;i--){
                 pop_back();
             }
         }
 
         void insert(const T &value, size_t index) override {
+            if (index >= _size)
+                throw gsl::exceptions::out_of_range(index,_size);
             if (_size >= _capacity){
                 resize(_capacity * 2);
             }
             T* temp = new T [_capacity];
-            for (int i = 0; i<index;i++){
+            for (size_t i = 0; i<index;i++){
                 temp [i] = std::move(_data[i]);
             }
             temp[index] = std::move(value);
@@ -155,9 +157,11 @@ namespace gsl {
         }
 
         void erase(size_t index) override {
+            if (index >= _size)
+                throw gsl::exceptions::out_of_range(index,_size);
             T* temp = new T [_capacity];
             _size--;
-            for (int i =0;i<index;i++){
+            for (size_t i =0;i<index;i++){
                 temp[i] = std::move(_data[i]);
             }
             for (size_t i = index;i<_size;i++){
@@ -168,10 +172,14 @@ namespace gsl {
         }
 
         void erase(size_t first, size_t last) override {
+            if (first >= _size)
+                throw gsl::exceptions::out_of_range(first,_size);
+            if (last >= _size)
+                throw gsl::exceptions::out_of_range(last,_size);
             T* temp = new T [_capacity];
             size_t dif = last - first + 1;
             _size = _size - dif;
-            for (int i = 0;i<first;i++){
+            for (size_t i = 0;i<first;i++){
                 temp[i] = std::move(_data[i]);
             }
             for (size_t i = first;i<_size;i++){
@@ -189,13 +197,10 @@ namespace gsl {
                 res << "[";
                 for (size_t i = 0; i < _size; i++) {
                     if (i < _size - 1) {
-                        std::cout << "getting data" << std::endl;
                         res << _data[i] << ", ";
-                        std::cout << "got data" << std::endl;
                     }
                     else {
                         res << _data[i] << "]";
-                        std::cout << "got last data" << std::endl;
                     }
                 }
             }
@@ -239,11 +244,15 @@ namespace gsl {
             return _size == 0;
         }
 
-        T &operator[](size_t i) {
+        T &operator[](size_t i) override {
+            if (i >= _size)
+                throw gsl::exceptions::out_of_range(i,_size);
             return _data[i];
         }
 
-        T &operator[](size_t i) const {
+        T &operator[](size_t i) const override {
+            if (i >= _size)
+                throw gsl::exceptions::out_of_range(i,_size);
             return _data[i];
         }
 
@@ -267,7 +276,7 @@ namespace gsl {
     class vector<T*> {
     public:
         explicit vector(size_t size = 0, T *value = nullptr) : _size(size), _capacity(size+1), _data(new T*[size]) {
-            for (int i = 0; i < size; i++) {
+            for (size_t i = 0; i < size; i++) {
                 _data[i] = value;
             }
         }
@@ -310,7 +319,7 @@ namespace gsl {
 
         void resize(size_t new_size) {
             T** temp = new T*[new_size];
-            for (int i = 0; i < _size; i++) {
+            for (size_t i = 0; i < _size; i++) {
                 temp[i] = std::move(_data[i]);
             }
             _capacity = new_size;
@@ -320,11 +329,11 @@ namespace gsl {
 
         void resize(size_t new_size, T* value)  {
             T** temp = new T*[new_size];
-            for (int i = 0; i < _size; i++) {
+            for (size_t i = 0; i < _size; i++) {
                 temp[i] = std::move(_data[i]);
             }
-            for (int j = 0; j<new_size;j++){
-                temp[j+_size] = std::move(value);
+            for (size_t j = _size; j<new_size;j++){
+                temp[j] = std::move(value);
             }
             _capacity = new_size;
             _size = new_size;
@@ -345,7 +354,7 @@ namespace gsl {
             }
             T** temp = new T*[_capacity];
             temp[0] = value;
-            for (int i = 0; i<_size; i++){
+            for (size_t i = 0; i<_size; i++){
                 temp[i+1] = _data[i];
             }
             delete [] _data;
@@ -355,7 +364,7 @@ namespace gsl {
 
         void pop_back () {
             T** temp = new T*[_capacity];
-            for (int i = 0; i < _size - 1; ++i)
+            for (size_t i = 0; i < _size - 1; ++i)
                 temp[i] = std::move(_data[i]);
             delete[] _data;
             _data = temp;
@@ -364,7 +373,7 @@ namespace gsl {
 
         void pop_front() {
             T** temp = new T*[_capacity];
-            for (int i =1; i<_size;i++){
+            for (size_t i =1; i<_size;i++){
                 temp[i-1] = _data[i];
             }
             delete [] _data;
@@ -373,7 +382,7 @@ namespace gsl {
         }
 
         void clear () {
-            for (int i =_size;i>0;i--){
+            for (size_t i =_size;i>0;i--){
                 pop_back();
             }
         }
@@ -385,7 +394,7 @@ namespace gsl {
                 resize(_capacity * 2);
             }
             T** temp = new T* [_capacity];
-            for (int i = 0; i<index;i++){
+            for (size_t i = 0; i<index;i++){
                 temp [i] = std::move(_data[i]);
             }
             temp[index] = std::move(value);
@@ -402,7 +411,7 @@ namespace gsl {
                 throw gsl::exceptions::out_of_range(index,_size);
             T** temp = new T* [_capacity];
             _size--;
-            for (int i =0;i<index;i++){
+            for (size_t i =0;i<index;i++){
                 temp[i] = std::move(_data[i]);
             }
             for (size_t i = index;i<_size;i++){
@@ -420,7 +429,7 @@ namespace gsl {
             T** temp = new T* [_capacity];
             size_t dif = last - first + 1;
             _size = _size - dif;
-            for (int i = 0;i<first;i++){
+            for (size_t i = 0;i<first;i++){
                 temp[i] = std::move(_data[i]);
             }
             for (size_t i = first;i<_size;i++){

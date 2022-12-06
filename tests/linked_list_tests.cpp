@@ -581,7 +581,7 @@ TEST_CASE("linked_list_tests") {
         }
     }
 
-    SECTION("Erase(int index) test") {
+    SECTION("Erase(size_t index) test") {
         SECTION("integer") {
             gsl::linked_list<int> int_list;
             for (int i = 0; i < 4; i++) { int_list.push_back(i); }
@@ -771,10 +771,8 @@ TEST_CASE("linked_list_tests") {
 
         SECTION ("custom pointer") {
             gsl::linked_list<test_struct *> pts_list;
-            test_struct *ts;
+            test_struct *ts = new test_struct(test_struct{});
             for (int i = 0; i < 7; i++) {
-                test_struct testStruct;
-                ts = &testStruct;
                 pts_list.push_back(ts);
             }
             REQUIRE(pts_list.size() == 7);
