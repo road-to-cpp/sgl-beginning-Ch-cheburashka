@@ -56,7 +56,7 @@ namespace gsl {
             return current->_data;
         }
 
-        T &operator[](size_t i) const override {
+        const T &operator[](size_t i) const override {
             if (i >= _size)
                 throw gsl::exceptions::out_of_range(i,_size);
             size_t cnt = 0;

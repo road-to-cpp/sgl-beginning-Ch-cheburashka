@@ -13,7 +13,11 @@ namespace gsl {
 
         virtual T &operator*() = 0;
 
+        virtual T &operator->() = 0;
+
         virtual i_iterator &operator++() = 0;
+
+        virtual i_iterator &operator--() = 0;
 
         virtual bool operator==(const i_iterator &other) const = 0;
 

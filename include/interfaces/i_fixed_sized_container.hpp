@@ -13,7 +13,9 @@ namespace gsl {
     public:
         virtual ~i_fixed_sized_container() = default;
 
-        virtual T& at(size_t i) const = 0;
+        virtual const T& at(size_t i) const = 0;
+
+        virtual T& at(size_t i) = 0;
 
         virtual void fill (const T& value) = 0;
     };

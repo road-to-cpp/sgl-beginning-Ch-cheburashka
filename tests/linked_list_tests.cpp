@@ -771,7 +771,7 @@ TEST_CASE("linked_list_tests") {
 
         SECTION ("custom pointer") {
             gsl::linked_list<test_struct *> pts_list;
-            test_struct *ts = new test_struct(test_struct{});
+            auto *ts = new test_struct(test_struct{});
             for (int i = 0; i < 7; i++) {
                 pts_list.push_back(ts);
             }
