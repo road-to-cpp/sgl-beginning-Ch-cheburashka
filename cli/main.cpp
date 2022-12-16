@@ -1,10 +1,8 @@
 //
 // Created by 79056 on 05.11.2022.
 //
-
+//#include <containers/array.hpp>
 #include <iostream>
-#include <containers/vector.hpp>
-#include <containers/linked_list.hpp>
 
 struct test_struct {
     int value = 10;
@@ -20,15 +18,11 @@ struct test_struct {
     }
 };
 
-int main () {
 
-    gsl::vector<int> vec (2,2);
-    std::cout << vec << std::endl;
-    std::cout << "\n\nRESIZE\n\n";
-    vec.resize(6,5);
-    std::cout << vec;
-
-    return 0;
+int sum (int a, int b) {
+    return a+b;
 }
 
-
+int main() {
+    std::cout << sum(4, 5) << std::endl << std::endl;
+}

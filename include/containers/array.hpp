@@ -95,6 +95,10 @@ namespace gsl {
            os << arr.to_string();
            return os;
        }
+
+       iterator begin () {
+       }
+
    private:
        T _data[Size];
    };

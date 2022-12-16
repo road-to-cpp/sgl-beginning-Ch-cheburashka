@@ -18,14 +18,12 @@ namespace gsl {
 
         virtual ~i_container() =default;
 
-        virtual size_t size() const = 0;
+        [[nodiscard]] virtual size_t size() const = 0;
 
-        virtual bool empty() const = 0;
+        [[nodiscard]] virtual bool empty() const = 0;
 
-        virtual std::string to_string() const = 0;
+        [[nodiscard]] virtual std::string to_string() const = 0;
 
-//        virtual iterator begin() = 0;
-//
 //        virtual iterator end() = 0;
 //
 //        virtual iterator rbegin() = 0;

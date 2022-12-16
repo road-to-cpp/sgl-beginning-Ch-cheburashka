@@ -13,7 +13,7 @@ namespace gsl {
 
         virtual T &operator*() = 0;
 
-        virtual T &operator->() = 0;
+        virtual T *operator->() = 0;
 
         virtual i_iterator &operator++() = 0;
 
