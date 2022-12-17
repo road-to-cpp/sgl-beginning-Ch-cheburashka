@@ -97,6 +97,11 @@ namespace gsl {
        }
 
        iterator begin () {
+           return iterator(_data);
+       }
+
+       iterator end() {
+           return iterator(_data + Size);
        }
 
    private:

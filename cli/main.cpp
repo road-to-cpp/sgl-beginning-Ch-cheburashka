@@ -3,6 +3,7 @@
 //
 //#include <containers/array.hpp>
 #include <iostream>
+#include "containers/array.hpp"
 
 struct test_struct {
     int value = 10;
@@ -19,10 +20,11 @@ struct test_struct {
 };
 
 
-int sum (int a, int b) {
-    return a+b;
-}
-
 int main() {
-    std::cout << sum(4, 5) << std::endl << std::endl;
+    gsl::array<test_struct, 5> arr;
+    arr.fill({1, false});
+    for (auto &i : arr) {
+        std::cout << i << std::endl;
+    }
+    return 0;
 }
