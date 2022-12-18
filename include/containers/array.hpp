@@ -97,8 +97,28 @@ namespace gsl {
        }
 
        iterator begin () {
+           return iterator(_data);
        }
 
+       iterator end() {
+           return iterator(_data + Size);
+       }
+
+       iterator rbegin() {
+           return iterator(_data + Size - 1);
+       }
+
+       iterator rend() {
+           return iterator(_data - 1);
+       }
+
+       iterator cbegin() const {
+           return iterator(_data);
+       }
+
+       iterator cend() const {
+           return iterator(_data + Size);
+       }
    private:
        T _data[Size];
    };
@@ -110,7 +130,7 @@ namespace gsl {
     template <typename T, size_t Size>
     class array <T*,Size> {
     public:
-        using iterator = array_iterator<T,Size>;
+        using iterator = array_iterator<T*,Size>;
 
         array(){}
 
@@ -191,6 +211,31 @@ namespace gsl {
             os << arr.to_string();
             return os;
         }
+
+        iterator begin () {
+            return iterator(_data);
+        }
+
+        iterator end() {
+            return iterator(_data + Size);
+        }
+
+        iterator rbegin() {
+            return iterator(_data + Size - 1);
+        }
+
+        iterator rend() {
+            return iterator(_data - 1);
+        }
+
+        iterator cbegin() const {
+            return iterator(_data);
+        }
+
+        iterator cend() const {
+            return iterator(_data + Size);
+        }
+
     private:
         T* _data[Size];
     };
