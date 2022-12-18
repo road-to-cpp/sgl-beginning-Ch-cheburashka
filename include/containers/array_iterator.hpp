@@ -12,6 +12,7 @@ namespace gsl {
     template<typename T, size_t ArrSize>
     class array;
 
+
     template<typename T, size_t ArrSize>
     class array_iterator : std::iterator<std::input_iterator_tag, T> {
         friend class array<T, ArrSize>;

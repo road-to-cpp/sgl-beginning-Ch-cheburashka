@@ -9,20 +9,17 @@
 #include <string>
 #include <vector>
 
-
 namespace gsl {
     template<typename T>
     class i_container {
     public:
-
-        virtual ~i_container() =default;
+        virtual ~i_container() = default;
 
         [[nodiscard]] virtual size_t size() const = 0;
 
         [[nodiscard]] virtual bool empty() const = 0;
 
         [[nodiscard]] virtual std::string to_string() const = 0;
-
     };
 }
 #endif //GSLIB_I_CONTAINTER_HPP
