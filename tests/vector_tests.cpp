@@ -5,6 +5,7 @@
 #include <containers/vector.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+
 struct test_struct {
     int value = 10;
     bool flag = true;
@@ -16,6 +17,12 @@ struct test_struct {
     friend std::ostream &operator<<(std::ostream &os, test_struct const &ts) {
         os << "{ value: " << ts.value << " flag: " << ts.flag << " }";
         return os;
+    }
+
+    [[nodiscard]] std::string to_string() const {
+        std::ostringstream res;
+        res << value << " " << flag;
+        return res.str();
     }
 };
 
@@ -493,7 +500,7 @@ TEST_CASE("vector_tests") {
         }
     }
 
-    SECTION("Insert tests") {
+    SECTION("Insert test") {
         SECTION("integer") {
             gsl::vector<int> int_vector;
             for (int i = 0; i < 3; i++) { int_vector.push_back(i); }
@@ -771,4 +778,43 @@ TEST_CASE("vector_tests") {
         }
     }
 
+    SECTION ("Iterator test") {
+        SECTION ("integer") {
+            gsl::vector<int> int_vector;
+            for (size_t i = 0; i<5; ++i) {int_vector.push_back(i); }
+            REQUIRE(int_vector.size() == 5);
+            size_t i = 0;
+            for (auto it = int_vector.begin(); it != int_vector.end(); ++it) {
+                REQUIRE(*it == i);
+                i++;
+            }
+            REQUIRE (int_vector.to_string() == "[0, 1, 2, 3, 4]");
+
+            std::ostringstream test_out;
+            for (auto it = int_vector.begin(); it != int_vector.end(); ++it) {
+                test_out << *it << " ";
+            }
+            REQUIRE(test_out.str() == "0 1 2 3 4 ");
+        }
+        SECTION ("custom structure") {
+            gsl::vector<test_struct> ts_vector;
+            for (int i = 0; i < 5; i++) { ts_vector.push_back(test_struct{}); }
+            REQUIRE(ts_vector.size() == 5);
+            size_t i = 0;
+            for (auto it = ts_vector.begin(); it != ts_vector.end(); ++it) {
+                REQUIRE(it->to_string() == "10 1");
+            }
+            REQUIRE(
+                    ts_vector.to_string() ==
+                    "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
+            );
+
+            std::ostringstream test_out;
+            for (auto it = ts_vector.begin(); it != ts_vector.end(); ++it) {
+                test_out << *it << " ";
+            }
+            REQUIRE(test_out.str() ==
+                    "{ value: 10 flag: 1 } { value: 10 flag: 1 } { value: 10 flag: 1 } { value: 10 flag: 1 } { value: 10 flag: 1 } ");
+        }
+    }
 }

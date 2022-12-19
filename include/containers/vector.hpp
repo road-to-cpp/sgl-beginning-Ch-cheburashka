@@ -6,36 +6,14 @@
 #define GSLIB_VECTOR_HPP
 #include <sstream>
 #include <interfaces/i_sequence_container.hpp>
-#include <interfaces/i_iterator.hpp>
 #include <utils/exceptions.hpp>
 #include <iostream>
+#include <containers/vector_iterator.hpp>
 namespace gsl {
     template<typename T>
     class vector : public i_sequence_container<T> {
     public:
-        class iterator : public i_iterator<T>{
-        public:
-            explicit iterator(T* ptr = nullptr): _ptr(ptr){}
-
-            T &operator*() override {
-                return *_ptr;
-            }
-            bool operator==(const iterator &other) const override {
-                return this->ptr == other.ptr;
-            }
-            bool operator!=(const iterator &other) const override {
-                return this->ptr != other.ptr;
-            }
-            iterator &operator++() override {
-                _ptr++;
-                return *this;
-            }
-            ~iterator(){
-                delete _ptr;
-            }
-        private:
-            T * _ptr;
-        };
+        using iterator = vector_iterator<T>;
 
         explicit vector(size_t size = 0, const T &value = T()) : _size(size), _capacity(size+1), _data(new T[size]) {
             for (size_t i = 0; i < size; i++) {
@@ -254,6 +232,29 @@ namespace gsl {
             if (i >= _size)
                 throw gsl::exceptions::out_of_range(i,_size);
             return _data[i];
+        }
+
+        iterator begin() {
+            return iterator(_data);
+        }
+
+        iterator end() {
+            return iterator(_data + _size);
+        }
+
+        iterator cbegin () const {
+            return iterator(_data);
+        }
+
+        iterator cend() const {
+            return iterator(_data + _size);
+        }
+
+        iterator rbegin() {
+            return iterator(_data + _size - 1);
+        }
+        iterator rend() {
+            return iterator(_data-1);
         }
 
 
