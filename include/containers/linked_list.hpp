@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <utils/exceptions.hpp>
+#include <containers/linked_list_iterator.hpp>
 
 namespace gsl {
     template <typename T>
@@ -18,11 +19,14 @@ namespace gsl {
         T _data;
         Node *_pNext;
         explicit Node(T data = T(),Node * pNext = nullptr): _data(data), _pNext(pNext){}
+
     };
 
     template<typename T>
     class linked_list : public i_sequence_container<T> {
     public:
+        using iterator = linked_list_iterator<T>;
+
         explicit linked_list(): _size(0), _head(nullptr), _tail(_head){}
 
         [[nodiscard]] size_t size() const override {
@@ -224,6 +228,32 @@ namespace gsl {
         ~linked_list() {
             clear();
         };
+
+        iterator begin() {
+            return iterator(_head);
+        }
+
+        iterator end() {
+            return iterator(_tail->_pNext);
+        }
+
+        iterator cbegin () const {
+            return iterator(_head);
+        }
+
+        iterator cend() const {
+            return iterator(_tail->_pNext);
+        }
+
+        iterator rbegin() {
+            return iterator(_tail);
+        }
+
+        iterator rend() {
+            auto prev = new Node<T>;
+            prev->_pNext = _head;
+            return iterator(prev);
+        }
 
         friend std::ostream &operator<<(std::ostream &os, const linked_list &ls) {
             os << ls.to_string();

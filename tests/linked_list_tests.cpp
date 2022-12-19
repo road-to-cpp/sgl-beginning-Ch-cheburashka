@@ -787,4 +787,24 @@ TEST_CASE("linked_list_tests") {
             );
         }
     }
+
+    SECTION ("Iterator test") {
+        SECTION ("integer") {
+            gsl::linked_list<int> int_list;
+            for (size_t i = 0; i<5; ++i) {int_list.push_back(i); }
+            REQUIRE(int_list.size() == 5);
+            size_t i = 0;
+            for (auto it = int_list.begin(); it != int_list.end(); ++it) {
+                REQUIRE(*it == i);
+                i++;
+            }
+            REQUIRE (int_list.to_string() == "[0, 1, 2, 3, 4]");
+
+            std::ostringstream test_out;
+            for (auto it = int_list.begin(); it != int_list.end(); ++it) {
+                test_out << *it << " ";
+            }
+            REQUIRE(test_out.str() == "0 1 2 3 4 ");
+        }
+    }
 }

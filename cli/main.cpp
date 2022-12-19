@@ -1,8 +1,8 @@
 //
 // Created by 79056 on 05.11.2022.
 //
-//#include <containers/array.hpp>
 #include <iostream>
+#include "containers/linked_list.hpp"
 
 struct test_struct {
     int value = 10;
@@ -19,10 +19,18 @@ struct test_struct {
 };
 
 
-int sum (int a, int b) {
-    return a+b;
-}
-
 int main() {
-    std::cout << sum(4, 5) << std::endl << std::endl;
+    gsl::linked_list<int> ls;
+
+    for (int i = 0; i<5; i++) { ls.push_back(i); }
+
+    gsl::linked_list_iterator it = ls.rend();
+
+    ++it;
+
+    std::cout << *it;
+
+    std::cout << ls;
+
+    return 0;
 }
