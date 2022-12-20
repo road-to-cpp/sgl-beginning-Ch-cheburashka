@@ -24,9 +24,9 @@ namespace gsl {
     public:
         virtual ~linked_list_iterator() = default;
 
-        T &operator*() { return *_data; }
+        T &operator*() { return _data->_data; }
 
-        T *operator->() { return _data; }
+        T *operator->() { return &_data->_data; }
 
         linked_list_iterator &operator++() {
             _data = _data->_pNext;

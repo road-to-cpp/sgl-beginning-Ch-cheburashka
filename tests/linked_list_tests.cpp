@@ -17,6 +17,11 @@ struct test_struct {
         os << "{ value: " << ts.value << " flag: " << ts.flag << " }";
         return os;
     }
+    [[nodiscard]] std::string to_string() const {
+        std::ostringstream res;
+        res << value << " " << flag;
+        return res.str();
+    }
 };
 
 TEST_CASE("linked_list_tests") {
@@ -791,7 +796,7 @@ TEST_CASE("linked_list_tests") {
     SECTION ("Iterator test") {
         SECTION ("integer") {
             gsl::linked_list<int> int_list;
-            for (size_t i = 0; i<5; ++i) {int_list.push_back(i); }
+            for (int i = 0; i<5; ++i) {int_list.push_back(i); }
             REQUIRE(int_list.size() == 5);
             size_t i = 0;
             for (auto it = int_list.begin(); it != int_list.end(); ++it) {
@@ -805,6 +810,26 @@ TEST_CASE("linked_list_tests") {
                 test_out << *it << " ";
             }
             REQUIRE(test_out.str() == "0 1 2 3 4 ");
+        }
+        SECTION ("custom structure") {
+            gsl::linked_list<test_struct> ts_list;
+            for (size_t i = 0; i<5; ++i) {ts_list.push_back(test_struct{}); }
+            REQUIRE(ts_list.size() == 5);
+
+            for (auto it = ts_list.begin(); it != ts_list.end(); ++it) {
+                REQUIRE(it->to_string() == "10 1");
+            }
+            REQUIRE(
+                    ts_list.to_string() ==
+                    "[{ value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }, { value: 10 flag: 1 }]"
+            );
+
+            std::ostringstream test_out;
+            for (auto it = ts_list.begin(); it != ts_list.end(); ++it) {
+                test_out << *it << " ";
+            }
+            REQUIRE(test_out.str() ==
+                    "{ value: 10 flag: 1 } { value: 10 flag: 1 } { value: 10 flag: 1 } { value: 10 flag: 1 } { value: 10 flag: 1 } ");
         }
     }
 }

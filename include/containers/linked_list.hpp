@@ -237,23 +237,6 @@ namespace gsl {
             return iterator(_tail->_pNext);
         }
 
-        iterator cbegin () const {
-            return iterator(_head);
-        }
-
-        iterator cend() const {
-            return iterator(_tail->_pNext);
-        }
-
-        iterator rbegin() {
-            return iterator(_tail);
-        }
-
-        iterator rend() {
-            auto prev = new Node<T>;
-            prev->_pNext = _head;
-            return iterator(prev);
-        }
 
         friend std::ostream &operator<<(std::ostream &os, const linked_list &ls) {
             os << ls.to_string();

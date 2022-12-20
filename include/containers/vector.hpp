@@ -9,11 +9,15 @@
 #include <utils/exceptions.hpp>
 #include <iostream>
 #include <containers/vector_iterator.hpp>
+#include <containers/vector_const_iterator.hpp>
+#include <containers/vector_reverse_iterator.hpp>
 namespace gsl {
     template<typename T>
     class vector : public i_sequence_container<T> {
     public:
         using iterator = vector_iterator<T>;
+        using const_iterator = vector_const_iterator<T>;
+        using reverse_iterator = vector_reverse_iterator<T>;
 
         explicit vector(size_t size = 0, const T &value = T()) : _size(size), _capacity(size+1), _data(new T[size]) {
             for (size_t i = 0; i < size; i++) {
@@ -242,19 +246,19 @@ namespace gsl {
             return iterator(_data + _size);
         }
 
-        iterator cbegin () const {
-            return iterator(_data);
+        const_iterator cbegin () const {
+            return const_iterator(_data);
         }
 
-        iterator cend() const {
-            return iterator(_data + _size);
+        const_iterator cend() const {
+            return const_iterator(_data + _size);
         }
 
-        iterator rbegin() {
-            return iterator(_data + _size - 1);
+        reverse_iterator rbegin() {
+            return reverse_iterator(_data + _size - 1);
         }
-        iterator rend() {
-            return iterator(_data-1);
+        reverse_iterator rend() {
+            return reverse_iterator(_data-1);
         }
 
 

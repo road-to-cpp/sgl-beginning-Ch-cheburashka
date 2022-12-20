@@ -9,6 +9,8 @@
 #include <iostream>
 #include <sstream>
 #include <containers/array_iterator.hpp>
+#include <containers/array_const_iterator.hpp>
+#include <containers/array_reverse_iterator.hpp>
 #include <utils/exceptions.hpp>
 
 namespace gsl {
@@ -16,6 +18,8 @@ namespace gsl {
    class array : public i_fixed_sized_container<T> {
    public:
        using iterator = array_iterator<T,Size>;
+       using const_iterator = array_const_iterator<T,Size>;
+       using reverse_iterator = array_reverse_iterator<T, Size>;
 
        void fill (const T& value) override {
            for (size_t i =0;i<Size;i++) {
@@ -104,19 +108,19 @@ namespace gsl {
            return iterator(_data + Size);
        }
 
-       iterator cbegin () const {
-           return iterator(_data);
+       const_iterator cbegin () const {
+           return const_iterator(_data);
        }
 
-       iterator cend() const {
-           return iterator(_data + Size);
+       const_iterator cend() const {
+           return const_iterator(_data + Size);
        }
 
-       iterator rbegin() {
-           return iterator(_data + Size - 1);
+       reverse_iterator rbegin() {
+           return reverse_iterator(_data + Size - 1);
        }
-       iterator rend() {
-           return iterator(_data-1);
+       reverse_iterator rend() {
+           return reverse_iterator(_data-1);
        }
 
 
