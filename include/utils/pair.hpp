@@ -73,6 +73,11 @@ namespace gsl {
         pair() = default;
 
         ~pair() = default;
+
+        friend std::ostream& operator<<(std::ostream& os, pair<First, Second> const& p) {
+            os << "first: " << p.first << ", second: " << p.second;
+            return os;
+        }
     };
 }
 
