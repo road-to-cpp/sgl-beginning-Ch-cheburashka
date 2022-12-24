@@ -2,7 +2,7 @@
 // Created by 79056 on 05.11.2022.
 //
 #include <iostream>
-#include "containers/linked_list.hpp"
+#include "containers/map.hpp"
 
 struct test_struct {
     int value = 10;
@@ -20,17 +20,12 @@ struct test_struct {
 
 
 int main() {
-    gsl::linked_list<int> ls;
 
-    for (int i = 0; i<5; i++) { ls.push_back(i); }
+    gsl::map<int,int> map;
 
-    gsl::linked_list_iterator it = ls.rend();
+    map.insert({1,1});
 
-    ++it;
 
-    std::cout << *it;
-
-    std::cout << ls;
 
     return 0;
 }
