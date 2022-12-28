@@ -24,6 +24,23 @@ namespace gsl {
                 _data[i] = value;
             }
         }
+
+
+        vector(const vector& other) : _size(other._size),_capacity(other._capacity) {
+            _data = new T [other._size];
+            for (int i = 0;i<other.size_;i++) {
+                _data[i] = other._data[i];
+            }
+        }
+
+        template <class... Args>
+        void emplace_back (Args&&... args) {
+            if (_size >= _capacity){
+                resize(_capacity * 2);
+            }
+            _data[_size++] = T(std::forward<Args>(args)...);
+        }
+
         [[nodiscard]] size_t size () const override {
             return _size;
         }
@@ -171,7 +188,7 @@ namespace gsl {
             _data = temp;
         }
 
-        [[nodiscard]] std::string to_string() const override {
+        [[nodiscard]] std::string to_string() const override  {
             std::stringstream res;
             if (_size == 0)
                 res << "[]";
