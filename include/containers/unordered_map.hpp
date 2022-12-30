@@ -8,6 +8,7 @@
 #include <interfaces/i_associative_container.hpp>
 #include <vector>
 #include <containers/unordered_map_iterator.hpp>
+#include <utils/pair.hpp>
 #include <string>
 #include <containers/vector.hpp>
 
@@ -16,6 +17,8 @@ namespace gsl {
     template<typename Key, typename Value>
     class unordered_map : i_associative_container<Key, Value> {
     public:
+        using iterator = unordered_map_iterator<Key,Value>;
+
         struct Bucket {
             Key key;
             Value value;
@@ -31,7 +34,7 @@ namespace gsl {
             _size = 0;
         }
 
-        ~unordered_map() {};
+        ~unordered_map() = default;
 
         void insert(Key const &key, Value const &value) override {
             auto hash = _hasher(key);
@@ -153,6 +156,19 @@ namespace gsl {
             }
         }
 
+        iterator find(const Key& key) {
+            auto hash = _hasher(key);
+            auto index = hash % _capacity;
+
+            if (_data[index].empty())
+                throw std::out_of_range("Key not found");
+            else {
+                for (auto &bucket: _data[index]) {
+                    if (bucket.key == key)
+                        return iterator(&bucket);
+                }
+            }
+        }
 
     private:
         std::hash<Key> _hasher;

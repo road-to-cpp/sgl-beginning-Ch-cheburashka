@@ -34,7 +34,6 @@ namespace gsl {
 
 //        virtual void erase(const iterator &first, const iterator &last) = 0;
 
-//        virtual iterator find(const K &key) = 0;
 
 
     };

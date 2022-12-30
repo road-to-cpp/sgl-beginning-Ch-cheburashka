@@ -19,7 +19,8 @@ namespace gsl {
 
         [[nodiscard]] virtual bool empty() const = 0;
 
-        [[nodiscard]] virtual std::string to_string() const = 0;
+//        [[nodiscard]] virtual std::string to_string() const = 0;
+
     };
 }
 #endif //GSLIB_I_CONTAINTER_HPP

@@ -188,7 +188,7 @@ namespace gsl {
             _data = temp;
         }
 
-        [[nodiscard]] std::string to_string() const override  {
+        [[nodiscard]] std::string to_string() const  {
             std::stringstream res;
             if (_size == 0)
                 res << "[]";

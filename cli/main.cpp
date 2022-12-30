@@ -2,10 +2,11 @@
 // Created by 79056 on 05.11.2022.
 //
 #include <iostream>
-#include <containers/vector.hpp>
-#include <utils/pair.hpp>
+
 #include <string>
+#include <containers/unordered_map.hpp>
 #include <unordered_map>
+#include <vector>
 
 struct test_struct {
     int value = 10;
@@ -21,62 +22,6 @@ struct test_struct {
     }
 };
 
-template<typename Kt, typename Vt>
-class unordered_map {
-public:
-    unordered_map() {
-        _data = std::vector<std::vector<Bucket>>(_capacity);
-        _size = 0;
-    }
-
-    ~unordered_map() {}
-
-    void insert(Kt const &key, Vt const &value) {
-        auto hash = _hasher(key);
-        auto index = hash % _capacity;
-
-        if (_data[index].empty()) {
-            _data[index].push_back(Bucket{key, value});
-            _size++;
-        } else {
-            for (auto &bucket: _data[index]) {
-                if (bucket.key == key) {
-                    bucket.value = value;
-                    return;
-                }
-            }
-            _data[index].push_back(Bucket{key, value});
-            _size++;
-        }
-    }
-
-    Vt &operator[](Kt const &key) {
-        auto hash = _hasher(key);
-        auto index = hash % _capacity;
-
-        if (_data[index].empty()) {
-            throw std::out_of_range("Key not found");
-        } else {
-            for (auto &bucket: _data[index]) {
-                if (bucket.key == key) {
-                    return bucket.value;
-                }
-            }
-            throw std::out_of_range("Key not found");
-        }
-    }
-
-    struct Bucket {
-        Kt key;
-        Vt value;
-    };
-private:
-    std::hash<Kt> _hasher;
-    std::vector<std::vector<Bucket>> _data;
-    size_t _size;
-    size_t _capacity = 10;
-};
-
 
 template<typename T>
 class binary_tree {
@@ -89,8 +34,7 @@ public:
 
     binary_tree() : _head(nullptr) {}
 
-    ~binary_tree() {
-    }
+    ~binary_tree() = default;
 
     void insert(T const &value) {
         if (_head == nullptr) {
@@ -99,7 +43,7 @@ public:
         } else {
             auto current_node = _head;
             while (true) {
-                if (value > current_node->data) {
+                if (value < current_node->data) {
                     if (current_node->left == nullptr) {
                         current_node->left = new Node{value};
                         _size++;
@@ -120,7 +64,35 @@ public:
         }
     }
 
-    friend std::ostream& operator<<(std::ostream& os, binary_tree<T> const& tree) {}
+    [[nodiscard]] std::string to_string() const  {
+        std::stringstream res;
+        std::vector<T> vector;
+        if (_size == 0)
+            res << "[]";
+        else {
+            res << "[";
+            auto *current = _head;
+            while (current->left != nullptr) {
+                vector.push_back(current->data);
+                current = current->left;
+            }
+            vector.push_back(current->data);
+            size_t i = vector.size() - 1;
+            for (auto iterator = vector.begin();iterator != vector.end(); iterator++) { res << vector[i--] << ", "; }
+            current = _head->right;
+            while (current->right != nullptr) {
+                res << current->data << ", ";
+                current = current->right;
+            }
+            res << current->data << "]";
+        }
+        return res.str();
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, binary_tree<T> const& tree) {
+        os << tree.to_string();
+        return os;
+    }
 private:
     size_t _size = 0;
     Node *_head;
@@ -129,5 +101,35 @@ private:
 
 int main() {
 
+    gsl::unordered_map<std::string,int> map;
+
+    map.insert("mother", 30);
+    map.insert("father", 32);
+    map.insert("daughter", 7);
+    map.emplace("son", 3);
+
+    auto it = map.find("father");
+
+    std::cout << "iterator (first and second):\n";
+    std::cout << it.first << std::endl; // output: "father"
+    std::cout << it.second << std::endl << std::endl; // output: 32
+
+
+    std::cout << "size:\n";
+    std::cout << map.size() << std::endl << std::endl; // output: 4
+
+    std::cout << "contains:\n";
+    std::cout << map.contains("mother") << std::endl << std::endl; //output: 1
+
+    std::cout << "search:\n";
+    std::cout << map["son"] << std::endl; //output: 3
+    std::cout << map.at("daughter") << std::endl << std::endl; //output: 7
+
+    std::cout << "empty:\n";
+    std::cout << map.empty() << std::endl; //output: 0
+
+
+
     return 0;
 }
+
