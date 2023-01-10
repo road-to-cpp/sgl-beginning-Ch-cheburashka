@@ -22,12 +22,21 @@ namespace gsl {
         struct Bucket {
             Key key;
             Value value;
+            bool contains = false;
 
             friend std::ostream &operator<<(std::ostream &os, const Bucket &bucket) {
                 os << "key: " << bucket.key << ", value: " << bucket.value;
                 return os;
             }
         };
+
+        iterator begin() {
+            return iterator(_data);
+        }
+
+        iterator end() {
+            return iterator(_data, _data.size());
+        }
 
         unordered_map() {
             _data = std::vector<std::vector<Bucket>>(_capacity);

@@ -10,29 +10,40 @@
 #include <containers/unordered_map.hpp>
 
 
-
 namespace gsl {
 
     template<typename Key, typename Value>
     class unordered_map;
 
     template<typename Key, typename Value>
-    class unordered_map_iterator : std::iterator<std::input_iterator_tag,Key> {
-        friend class unordered_map<Key,Value>;
+    class unordered_map_iterator : std::iterator<std::input_iterator_tag, Key> {
+        friend class unordered_map<Key, Value>;
 
     protected:
-        explicit unordered_map_iterator(typename unordered_map<Key,Value>::Bucket* data) : _data(data) {}
+
+        unordered_map_iterator(std::vector<std::vector<unordered_map<Key, Value>::Bucket>> &data,
+                               size_t current_index = 0, size_t inner_index = 0) : _data(data), _current_index(current_index), _current_inner_index(inner_index) {}
 
     public:
 
         unordered_map_iterator &operator++() {
-            ++_data;
+            if (_data.size() <= _current_index) {
+                return *this;
+            }
+            if (_data[_current_index].size() <= _current_inner_index) {
+                _current_index++;
+                _current_inner_index = 0;
+            }
+            _current_inner_index++;
             return *this;
         }
 
-        unordered_map_iterator &operator--() {
-            --_data;
-            return *this;
+        typename unordered_map<Key, Value>::Bucket &operator*() {
+            return _data[_current_index][_current_inner_index];
+        }
+
+        typename unordered_map<Key, Value>::Bucket &operator->() {
+            return _data[_current_index][_current_inner_index];
         }
 
         bool operator==(const unordered_map_iterator &other) const {
@@ -42,16 +53,18 @@ namespace gsl {
         bool operator!=(const unordered_map_iterator &other) const { return _data != other._data; }
 
 
-        unordered_map_iterator(unordered_map_iterator<Key,Value> const &other) {
+        unordered_map_iterator(unordered_map_iterator<Key, Value> const &other) {
             _data = other._data;
         }
 
     private:
-        typename unordered_map<Key,Value>::Bucket* _data;
+        std::vector <std::vector<unordered_map<Key, Value>::Bucket>> &_data;
+        size_t _current_index;
+        size_t _current_inner_index;
 
     public:
-        Value& second = _data->value;
-        Key& first = _data->key;
+        Value &second = _data->value;
+        Key &first = _data->key;
     };
 
 }

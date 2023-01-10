@@ -128,8 +128,9 @@ int main() {
     std::cout << "empty:\n";
     std::cout << map.empty() << std::endl; //output: 0
 
-
-
+    auto iterator = map.begin();
+    iterator->key;
+    iterator->value;
     return 0;
 }
 
