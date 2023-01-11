@@ -5,7 +5,6 @@
 
 #include <string>
 #include <containers/unordered_map.hpp>
-#include <unordered_map>
 #include <vector>
 
 struct test_struct {
@@ -106,13 +105,16 @@ int main() {
     map.insert("mother", 30);
     map.insert("father", 32);
     map.insert("daughter", 7);
-    map.emplace("son", 3);
+    map.insert("son", 3);
+    map.insert("grandma", 3);
+    map.insert("shit", 3);
 
-    auto it = map.find("father");
 
-    std::cout << "iterator (first and second):\n";
-    std::cout << it.first << std::endl; // output: "father"
-    std::cout << it.second << std::endl << std::endl; // output: 32
+//    auto it = map.find("father");
+
+//    std::cout << "iterator (first and second):\n";
+//    std::cout << it.first << std::endl; // output: "father"
+//    std::cout << it.second << std::endl << std::endl; // output: 32
 
 
     std::cout << "size:\n";
@@ -129,8 +131,10 @@ int main() {
     std::cout << map.empty() << std::endl; //output: 0
 
     auto iterator = map.begin();
-    iterator->key;
-    iterator->value;
+    std::cout << *iterator << std::endl << std::endl;
+
+
+    gsl::unordered_map<int,int> mappp;
     return 0;
 }
 

@@ -52,9 +52,14 @@ namespace gsl {
                 _data[index].push_back(Bucket{key, value});
                 _size++;
             } else {
+                if (double(_data.size() / _capacity) >= 0.75) {
+                    _data.resize(_data.capacity() * 2);
+                    _capacity *= 2;
+                }
                 for (auto &bucket: _data[index]) {
                     if (bucket.key == key) {
                         bucket.value = value;
+                        bucket.contains = true;
                         return;
                     }
                 }
@@ -124,7 +129,7 @@ namespace gsl {
             auto index = hash % _capacity;
 
             if (_data[index].empty())
-                throw std::out_of_range("Key not found");
+                throw std::out_of_range("Unordered_map is empty");
             else {
                 for (auto &bucket: _data[index]) {
                     if (bucket.key == key)
@@ -154,9 +159,14 @@ namespace gsl {
                 _size++;
             }
             else {
+                if (double(_data.size() / _capacity) >= 0.75) {
+                    _data.resize(_data.capacity() * 2);
+                    _capacity *= 2;
+                }
                 for (auto &bucket: _data[index]) {
                     if (bucket.key == key) {
                         bucket.value = value;
+                        bucket.contains = true;
                         return;
                     }
                 }
@@ -174,7 +184,7 @@ namespace gsl {
             else {
                 for (auto &bucket: _data[index]) {
                     if (bucket.key == key)
-                        return iterator(&bucket);
+                        return iterator(bucket);
                 }
             }
         }
