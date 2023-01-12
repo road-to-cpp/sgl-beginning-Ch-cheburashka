@@ -11,18 +11,19 @@
 #include <utils/pair.hpp>
 #include <string>
 #include <containers/vector.hpp>
+#include <list>
+#include <algorithm>
 
 namespace gsl {
 
     template<typename Key, typename Value>
     class unordered_map : i_associative_container<Key, Value> {
     public:
-        using iterator = unordered_map_iterator<Key,Value>;
+        using iterator = unordered_map_iterator<Key, Value>;
 
         struct Bucket {
             Key key;
             Value value;
-            bool contains = false;
 
             friend std::ostream &operator<<(std::ostream &os, const Bucket &bucket) {
                 os << "key: " << bucket.key << ", value: " << bucket.value;
@@ -31,47 +32,57 @@ namespace gsl {
         };
 
         iterator begin() {
-            return iterator(_data);
+            auto outer_it = std::find_if(
+                    _data.begin(), _data.end(), [](auto const &list) {
+                        return !list.empty();
+                    });
+            return iterator(outer_it, outer_it->begin());
         }
 
         iterator end() {
-            return iterator(_data, _data.size());
+            return iterator(_data.end(), _data.end()->end());
         }
 
         unordered_map() {
-            _data = std::vector<std::vector<Bucket>>(_capacity);
+            _data = std::vector<std::list<Bucket>>(_capacity);
             _size = 0;
         }
 
         ~unordered_map() = default;
 
         void insert(Key const &key, Value const &value) override {
-            auto hash = _hasher(key);
-            auto index = hash % _capacity;
-            if (_data[index].empty()) {
-                _data[index].push_back(Bucket{key, value});
-                _size++;
-            } else {
-                if (double(_data.size() / _capacity) >= 0.75) {
-                    _data.resize(_data.capacity() * 2);
-                    _capacity *= 2;
-                }
-                for (auto &bucket: _data[index]) {
-                    if (bucket.key == key) {
-                        bucket.value = value;
-                        bucket.contains = true;
-                        return;
+            // check if map occupied more than 75% of capacity
+            if (double(_size) >= double(_capacity) * 0.75) {
+                // resize
+                _capacity *= 2;
+                std::vector<std::list<Bucket>> new_data(_capacity);
+                for (auto &bucket: _data) {
+                    for (auto &item: bucket) {
+                        size_t index = _hasher(item.key) % _capacity;
+                        new_data[index].emplace_back(std::move(item));
                     }
                 }
+                _data = std::move(new_data);
+            }
+            auto hash = _hasher(key);
+            auto index = hash % _capacity;
+
+            // check if key already exists
+            auto found = std::find_if(_data[index].begin(), _data[index].end(),
+                                      [&key](const Bucket &bucket) { return bucket.key == key; });
+            if (found != _data[index].end()) {
+                found->value = value;
+                return;
+            } else {
                 _data[index].push_back(Bucket{key, value});
                 _size++;
             }
         }
 
-        Value &operator[](Key const &key) override{
+        Value &operator[](Key const &key) override {
             auto hash = _hasher(key);
             auto index = hash % _capacity;
-            if (_data[index].empty()) {
+            if (_data.empty()) {
                 throw std::out_of_range("Map is empty");
             } else {
                 for (auto &bucket: _data[index]) {
@@ -83,117 +94,118 @@ namespace gsl {
         }
 
         const Value &operator[](const Key &key) const override {
+            if (_data.empty())
+                throw std::out_of_range("Map is empty");
             auto hash = _hasher(key);
             auto index = hash % _capacity;
-            if (_data[index].empty()) {
-                throw std::out_of_range("Map is empty");
-            } else {
-                for (auto &bucket: _data[index]) {
-                    if (bucket.key == key)
-                        return bucket.value;
-                }
-                throw std::out_of_range("Key not found");
+
+            for (auto &bucket: _data[index]) {
+                if (bucket.key == key)
+                    return bucket.value;
             }
+            throw std::out_of_range("Key not found");
         }
 
         Value &at(const Key &key) override {
+            if (_data.empty())
+                throw std::out_of_range("Map is empty");
             auto hash = _hasher(key);
             auto index = hash % _capacity;
-            if (_data[index].empty())
-                throw std::out_of_range("Map is empty");
-            else {
-                for (auto &bucket: _data[index]) {
-                    if (bucket.key == key)
-                        return bucket.value;
-                }
-                throw std::out_of_range("Key not found");
+
+            for (auto &bucket: _data[index]) {
+                if (bucket.key == key)
+                    return bucket.value;
             }
+            throw std::out_of_range("Key not found");
         }
 
         const Value &at(const Key &key) const override {
+            if (_data.empty())
+                throw std::out_of_range("Map is empty");
             auto hash = _hasher(key);
             auto index = hash % _capacity;
-            if (_data[index].empty())
-                throw std::out_of_range("Map is empty");
-            else {
-                for (auto &bucket: _data[index]) {
-                    if (bucket.key == key)
-                        return bucket.value;
-                }
-                throw std::out_of_range("Key not found");
+
+            for (auto &bucket: _data[index]) {
+                if (bucket.key == key)
+                    return bucket.value;
             }
+            throw std::out_of_range("Key not found");
         }
 
         bool contains(const Key &key) const override {
+            if (_data.empty())
+                throw std::out_of_range("Unordered_map is empty");
             auto hash = _hasher(key);
             auto index = hash % _capacity;
 
-            if (_data[index].empty())
-                throw std::out_of_range("Unordered_map is empty");
-            else {
-                for (auto &bucket: _data[index]) {
-                    if (bucket.key == key)
-                        return true;
-                }
-                return false;
-            }
+
+            return (
+                    std::find_if(_data[index].begin(), _data[index].end(),
+                                 [&key](const Bucket &bucket) { return bucket.key == key; }) !=
+                    _data[index].end());
         }
 
         [[nodiscard]] size_t size() const override { return _size; }
 
-        [[nodiscard]] bool empty() const override {return _size == 0;}
+        [[nodiscard]] bool empty() const override { return _size == 0; }
 
-        void swap (unordered_map& other) {
+        [[nodiscard]] size_t capacity() const { return _capacity; }
+
+        void swap(unordered_map &other) {
             std::swap(_size, other._size);
             std::swap(_capacity, other._capacity);
             std::swap(_data, other._data);
             std::swap(_hasher, other._hasher);
         }
 
-        void emplace(const Key &key, const Value &value) override {
-            auto hash = _hasher(key);
-            auto index = hash % _capacity;
-
-            if (_data[index].empty()) {
-                _data[index].emplace_back(Bucket{key, value});
-                _size++;
-            }
-            else {
-                if (double(_data.size() / _capacity) >= 0.75) {
-                    _data.resize(_data.capacity() * 2);
-                    _capacity *= 2;
-                }
-                for (auto &bucket: _data[index]) {
-                    if (bucket.key == key) {
-                        bucket.value = value;
-                        bucket.contains = true;
-                        return;
-                    }
-                }
-                _data[index].emplace_back(Bucket{key, value});
-                _size++;
-            }
+        void clear() {
+            _data.clear();
+            _size = 0;
+            _capacity = 0;
         }
 
-        iterator find(const Key& key) {
+        void emplace(const Key &key, const Value &value) override {
+            throw std::logic_error("Not implemented");
+        }
+
+        void erase(const Key &key) {
+            throw std::logic_error("Not implemented");
+        }
+
+        void erase(const iterator &it) {
+            throw std::logic_error("Not implemented");
+        }
+
+        template<typename ...Args>
+        void emplace(Key const &k, Args &&... args) {
+            throw std::logic_error("Not implemented");
+        }
+
+        template<typename ...Args>
+        void emplace(Key &&k, Args &&... args) {
+            throw std::logic_error("Not implemented");
+        }
+
+        iterator find(const Key &key) {
+            if (_data.empty())
+                throw std::out_of_range("Unordered_map is empty");
             auto hash = _hasher(key);
             auto index = hash % _capacity;
 
-            if (_data[index].empty())
-                throw std::out_of_range("Key not found");
-            else {
-                for (auto &bucket: _data[index]) {
-                    if (bucket.key == key)
-                        return iterator(bucket);
-                }
+            auto found = std::find_if(_data[index].begin(), _data[index].end(),
+                                      [&key](const Bucket &bucket) { return bucket.key == key; });
+            if (found != _data[index].end()) {
+                return iterator(_data.begin() + index, found);
             }
+
+            return end();
         }
 
     private:
         std::hash<Key> _hasher;
-        std::vector<std::vector<Bucket>> _data;
+        std::vector<std::list<Bucket>> _data;
         size_t _size;
-        size_t _capacity = 10;
+        size_t _capacity = 1;
     };
 }
 

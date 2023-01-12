@@ -102,19 +102,21 @@ int main() {
 
     gsl::unordered_map<std::string,int> map;
 
+    std::cout << map.capacity() << '\n';
     map.insert("mother", 30);
     map.insert("father", 32);
     map.insert("daughter", 7);
     map.insert("son", 3);
     map.insert("grandma", 3);
-    map.insert("shit", 3);
+    map.insert("shit", 3); // hehe boi
+    std::cout << map.capacity() << '\n';
 
 
-//    auto it = map.find("father");
+    auto it = map.find("father");
 
-//    std::cout << "iterator (first and second):\n";
-//    std::cout << it.first << std::endl; // output: "father"
-//    std::cout << it.second << std::endl << std::endl; // output: 32
+    std::cout << "iterator (first and second):\n";
+    std::cout << (*it).key << std::endl; // output: "father"
+    std::cout << (*it).value << std::endl << std::endl; // output: 32
 
 
     std::cout << "size:\n";
@@ -133,8 +135,19 @@ int main() {
     auto iterator = map.begin();
     std::cout << *iterator << std::endl << std::endl;
 
+    map.insert("mother1", 30);
+    map.insert("father2", 32);
+    map.insert("daughter3", 7);
+    map.insert("son4", 3);
+    map.insert("grandma5", 3);
+    map.insert("shit6", 3);
 
-    gsl::unordered_map<int,int> mappp;
+    std::cout << map.capacity() << '\n';
+
+    map.emplace("mother7", 30);
+
+    auto found = map.find("mother7");
+    std::cout << (*found).value << std::endl;
     return 0;
 }
 
