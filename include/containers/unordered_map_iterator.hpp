@@ -43,6 +43,10 @@ namespace gsl {
             return *_inner_iterator;
         }
 
+        typename unordered_map<Key, Value>::Bucket &operator*() const {
+            return *_inner_iterator;
+        }
+
         bool operator==(const unordered_map_iterator &other) const {
             return _outer_iterator == other._outer_iterator &&
                    _inner_iterator == other._inner_iterator;

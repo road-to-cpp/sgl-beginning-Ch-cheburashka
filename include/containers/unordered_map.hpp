@@ -8,7 +8,6 @@
 #include <interfaces/i_associative_container.hpp>
 #include <vector>
 #include <containers/unordered_map_iterator.hpp>
-#include <utils/pair.hpp>
 #include <string>
 #include <containers/vector.hpp>
 #include <list>
@@ -70,6 +69,7 @@ namespace gsl {
             // check if key already exists
             auto found = std::find_if(_data[index].begin(), _data[index].end(),
                                       [&key](const Bucket &bucket) { return bucket.key == key; });
+
             if (found != _data[index].end()) {
                 found->value = value;
                 return;
@@ -83,7 +83,7 @@ namespace gsl {
             auto hash = _hasher(key);
             auto index = hash % _capacity;
             if (_data.empty()) {
-                throw std::out_of_range("Map is empty");
+                throw std::out_of_range("Unordered_map is empty");
             } else {
                 for (auto &bucket: _data[index]) {
                     if (bucket.key == key)
@@ -95,7 +95,7 @@ namespace gsl {
 
         const Value &operator[](const Key &key) const override {
             if (_data.empty())
-                throw std::out_of_range("Map is empty");
+                throw std::out_of_range("Unordered_map is empty");
             auto hash = _hasher(key);
             auto index = hash % _capacity;
 
@@ -108,7 +108,7 @@ namespace gsl {
 
         Value &at(const Key &key) override {
             if (_data.empty())
-                throw std::out_of_range("Map is empty");
+                throw std::out_of_range("Unordered_map is empty");
             auto hash = _hasher(key);
             auto index = hash % _capacity;
 
@@ -121,7 +121,7 @@ namespace gsl {
 
         const Value &at(const Key &key) const override {
             if (_data.empty())
-                throw std::out_of_range("Map is empty");
+                throw std::out_of_range("Unordered_map is empty");
             auto hash = _hasher(key);
             auto index = hash % _capacity;
 
@@ -137,7 +137,6 @@ namespace gsl {
                 throw std::out_of_range("Unordered_map is empty");
             auto hash = _hasher(key);
             auto index = hash % _capacity;
-
 
             return (
                     std::find_if(_data[index].begin(), _data[index].end(),
@@ -169,11 +168,33 @@ namespace gsl {
         }
 
         void erase(const Key &key) {
-            throw std::logic_error("Not implemented");
+            auto hash = _hasher(key);
+            auto index = hash % _capacity;
+
+            auto found = std::find_if(_data[index].begin(), _data[index].end(),
+                                      [&key](const Bucket &bucket) { return bucket.key == key; });
+
+            if (found != _data[index].end()) {
+                _data[index].erase(found);
+                _size--;
+            }
+            else
+                throw std::out_of_range("Key not found");
         }
 
         void erase(const iterator &it) {
-            throw std::logic_error("Not implemented");
+            auto hash = _hasher((*it).key);
+            auto index = hash % _capacity;
+
+            auto found = std::find_if(_data[index].begin(), _data[index].end(),
+                                      [&it](const Bucket &bucket) { return bucket.key == (*it).key; });
+
+            if (found != _data[index].end()) {
+                _data[index].erase(found);
+                _size--;
+            }
+            else
+                throw std::out_of_range("Key not found");
         }
 
         template<typename ...Args>
@@ -197,7 +218,6 @@ namespace gsl {
             if (found != _data[index].end()) {
                 return iterator(_data.begin() + index, found);
             }
-
             return end();
         }
 
