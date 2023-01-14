@@ -111,13 +111,11 @@ int main() {
     map.insert("shit", 3); // hehe boi
     std::cout << map.capacity() << '\n';
 
-    auto it = map.find("mother");
+    map.erase("son");
 
-    map.erase(it);
+    auto iter = map.find("son");
 
-    auto iter = map.find("mother");
-
-    if (iter == map.end()) {std::cout << "Not found"; }
+    if (iter == map.end()) {std::cout << "Not found\n"; } // output: "Not found"
 
     else {
         std::cout << "iterator (first and second):\n";
@@ -126,39 +124,31 @@ int main() {
     }
 
 
-//
-//    std::cout << "size:\n";
-//    std::cout << map.size() << std::endl << std::endl; // output: 4
-//
-//    std::cout << "contains:\n";
-//    std::cout << map.contains("mother") << std::endl << std::endl; //output: 1
-//
-//    std::cout << "search:\n";
-//    std::cout << map["son"] << std::endl; //output: 3
-//    std::cout << map.at("daughter") << std::endl << std::endl; //output: 7
-//
-//    std::cout << "empty:\n";
-//    std::cout << map.empty() << std::endl << std::endl; //output: 0
-//
-//    auto iterator = map.begin();
-//    std::cout << *iterator << std::endl << std::endl;
-//
-//    map.insert("mother1", 30);
-//    map.insert("father2", 32);
-//    map.insert("daughter3", 7);
-//    map.insert("son4", 3);
-//    map.insert("grandma5", 3);
-//    map.insert("shit6", 3);
-//
-//    std::cout << map.capacity() << '\n';
+    std::cout << "size:\n";
+    std::cout << map.size() << std::endl << std::endl; // output: 4
 
-//    map.emplace("mother7", 30);
-//
-//    auto found = map.find("mother7");
-//    std::cout << (*found).value << std::endl;
+    std::cout << "contains:\n";
+    std::cout << map.contains("mother") << std::endl << std::endl; //output: 1
 
-    gsl::unordered_map<int,int> map1;
-    map1.insert(1,1);
+    std::cout << "search:\n";
+    std::cout << map.at("daughter") << std::endl << std::endl; //output: 7
+
+    std::cout << "empty:\n";
+    std::cout << map.empty() << std::endl << std::endl; //output: 0
+
+    auto iterator = map.begin();
+    std::cout << *iterator << std::endl << std::endl; // key: mother, value: 30
+
+    map.insert("mother1", 30);
+    map.insert("father2", 32);
+    map.insert("daughter3", 7);
+    map.insert("son4", 3);
+    map.insert("grandma5", 3);
+    map.emplace("bullshit",34);
+
+    auto iterat = map.find("bullshit");
+    std::cout << "iterat: " << (*iterat).key << " " << (*iterat).value << std::endl;
+
     return 0;
 }
 

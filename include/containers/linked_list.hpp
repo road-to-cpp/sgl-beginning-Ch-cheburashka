@@ -351,18 +351,19 @@ namespace gsl {
                 for (size_t i = 0; i < index - 1; i++) {
                     previous = previous->_pNext;
                 }
-                Node<T*> *del_el = previous->_pNext;
+                Node<T *> *del_el = previous->_pNext;
                 previous->_pNext = del_el->_pNext;
                 delete del_el;
             }
-            if (index == _size - 1){
-                auto* current = _head;
+            if (index == _size - 1) {
+                auto *current = _head;
                 while (current->_pNext != nullptr)
                     current = current->_pNext;
                 _tail = current;
             }
             _size--;
         }
+
 
         void erase(size_t first, size_t last)  {
             if (first >= _size)

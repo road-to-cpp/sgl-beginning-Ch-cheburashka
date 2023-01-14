@@ -33,7 +33,7 @@ namespace gsl {
             }
         }
 
-        template <class... Args>
+        template <typename... Args>
         void emplace_back (Args&&... args) {
             if (_size >= _capacity){
                 resize(_capacity * 2);

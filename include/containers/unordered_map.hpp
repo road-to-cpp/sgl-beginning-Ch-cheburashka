@@ -163,11 +163,34 @@ namespace gsl {
             _capacity = 0;
         }
 
-        void emplace(const Key &key, const Value &value) override {
-            throw std::logic_error("Not implemented");
+        void erase(const Key &key) {
+            auto hash = _hasher(key);
+            auto index = hash % _capacity;
+
+            _data[index].erase(std::remove_if(_data[index].begin(), _data[index].end(),
+                                              [&key](const Bucket &bucket) { return bucket.key == key; }),_data[index].end());
         }
 
-        void erase(const Key &key) {
+        void erase(const iterator &it) {
+            auto hash = _hasher((*it).key);
+            auto index = hash % _capacity;
+
+            _data[index].erase(std::remove_if(_data[index].begin(), _data[index].end(),
+                                              [&it](const Bucket &bucket) { return bucket.key == (*it).key; }),_data[index].end());
+        }
+
+        void emplace(const Key &key, const Value &value) override {
+            if (double(_size) >= double(_capacity) * 0.75) {
+                _capacity *= 2;
+                std::vector<std::list<Bucket>> new_data(_capacity);
+                for (auto &bucket: _data) {
+                    for (auto &item: bucket) {
+                        size_t index = _hasher(item.key) % _capacity;
+                        new_data[index].emplace_back(std::move(item));
+                    }
+                }
+                _data = std::move(new_data);
+            }
             auto hash = _hasher(key);
             auto index = hash % _capacity;
 
@@ -175,36 +198,72 @@ namespace gsl {
                                       [&key](const Bucket &bucket) { return bucket.key == key; });
 
             if (found != _data[index].end()) {
-                _data[index].erase(found);
-                _size--;
+                found->value = value;
+                return;
+            } else {
+                _data[index].emplace_back(Bucket{std::move(key),value});
+                _size++;
             }
-            else
-                throw std::out_of_range("Key not found");
         }
 
-        void erase(const iterator &it) {
-            auto hash = _hasher((*it).key);
+        template<typename ...Args>
+        void emplace(Key const &key, Args &&... args) {
+            if (double(_size) >= double(_capacity) * 0.75) {
+                _capacity *= 2;
+                std::vector<std::list<Bucket>> new_data(_capacity);
+                for (auto &bucket: _data) {
+                    for (auto &item: bucket) {
+                        size_t index = _hasher(item.key) % _capacity;
+                        new_data[index].emplace_back(std::move(item));
+                    }
+                }
+                _data = std::move(new_data);
+            }
+            auto hash = _hasher(key);
             auto index = hash % _capacity;
 
             auto found = std::find_if(_data[index].begin(), _data[index].end(),
-                                      [&it](const Bucket &bucket) { return bucket.key == (*it).key; });
+                                      [&key](const Bucket &bucket) { return bucket.key == key; });
+
+            Value value = Value(std::forward<Args>(args)...);
 
             if (found != _data[index].end()) {
-                _data[index].erase(found);
-                _size--;
+                found->value = value;
+                return;
+            } else {
+                _data[index].emplace_back(Bucket{std::move(key),value});
+                _size++;
             }
-            else
-                throw std::out_of_range("Key not found");
         }
 
         template<typename ...Args>
-        void emplace(Key const &k, Args &&... args) {
-            throw std::logic_error("Not implemented");
-        }
+        void emplace(Key &&key, Args &&... args) {
+            if (double(_size) >= double(_capacity) * 0.75) {
+                _capacity *= 2;
+                std::vector<std::list<Bucket>> new_data(_capacity);
+                for (auto &bucket: _data) {
+                    for (auto &item: bucket) {
+                        size_t index = _hasher(item.key) % _capacity;
+                        new_data[index].emplace_back(std::move(item));
+                    }
+                }
+                _data = std::move(new_data);
+            }
+            auto hash = _hasher(key);
+            auto index = hash % _capacity;
 
-        template<typename ...Args>
-        void emplace(Key &&k, Args &&... args) {
-            throw std::logic_error("Not implemented");
+            auto found = std::find_if(_data[index].begin(), _data[index].end(),
+                                      [&key](const Bucket &bucket) { return bucket.key == key; });
+
+            Value value = Value(std::forward<Args>(args)...);
+
+            if (found != _data[index].end()) {
+                found->value = value;
+                return;
+            } else {
+                _data[index].emplace_back(Bucket{std::move(key),value});
+                _size++;
+            }
         }
 
         iterator find(const Key &key) {
@@ -226,6 +285,7 @@ namespace gsl {
         std::vector<std::list<Bucket>> _data;
         size_t _size;
         size_t _capacity = 1;
+
     };
 }
 
