@@ -280,6 +280,30 @@ namespace gsl {
             return end();
         }
 
+        std::string to_string() const {
+            std::stringstream res;
+            if (_size == 0)
+                res << "{}";
+            else {
+                res << "{";
+                for (size_t i = 0; i < _data.size(); ++i) {
+                    for (auto j = _data[i].begin(); j != _data[i].end(); ++j)
+                        if (i + 1 == _data.size()) {
+                            res << (*j).key << ":" << (*j).value;
+                        }
+                    else {
+                            res << (*j).key << ":" << (*j).value << ", ";
+                        }
+                }
+                }
+                res << "}";
+            return res.str();
+        }
+
+        friend std::ostream& operator<<(std::ostream &os, const unordered_map& u_map) {
+            os << u_map.to_string();
+            return os;
+        }
     private:
         std::hash<Key> _hasher;
         std::vector<std::list<Bucket>> _data;

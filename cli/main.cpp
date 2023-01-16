@@ -146,9 +146,11 @@ int main() {
     map.insert("grandma5", 3);
     map.emplace("bullshit",34);
 
+
     auto iterat = map.find("bullshit");
     std::cout << "iterat: " << (*iterat).key << " " << (*iterat).value << std::endl;
 
+    std::cout << map;
     return 0;
 }
 
