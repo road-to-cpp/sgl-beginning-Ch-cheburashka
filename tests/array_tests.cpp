@@ -26,7 +26,7 @@ struct test_struct {
     }
 };
 
-#include <containers/array.hpp>
+#include "containers/array/array.hpp"
 #include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("Array Tests") {

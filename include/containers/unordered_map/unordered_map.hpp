@@ -5,11 +5,11 @@
 #ifndef GSLIB_UNORDERED_MAP_HPP
 #define GSLIB_UNORDERED_MAP_HPP
 
-#include <interfaces/i_associative_container.hpp>
+#include "interfaces/i_associative_container.hpp"
 #include <vector>
-#include <containers/unordered_map_iterator.hpp>
+#include "unordered_map_iterator.hpp"
 #include <string>
-#include <containers/vector.hpp>
+#include "containers/vector/vector.hpp"
 #include <list>
 #include <algorithm>
 
@@ -23,7 +23,6 @@ namespace gsl {
         struct Bucket {
             Key key;
             Value value;
-
             friend std::ostream &operator<<(std::ostream &os, const Bucket &bucket) {
                 os << "key: " << bucket.key << ", value: " << bucket.value;
                 return os;
@@ -169,6 +168,7 @@ namespace gsl {
 
             _data[index].erase(std::remove_if(_data[index].begin(), _data[index].end(),
                                               [&key](const Bucket &bucket) { return bucket.key == key; }),_data[index].end());
+            --_size;
         }
 
         void erase(const iterator &it) {
@@ -177,6 +177,7 @@ namespace gsl {
 
             _data[index].erase(std::remove_if(_data[index].begin(), _data[index].end(),
                                               [&it](const Bucket &bucket) { return bucket.key == (*it).key; }),_data[index].end());
+            --_size;
         }
 
         void emplace(const Key &key, const Value &value) override {
@@ -280,23 +281,23 @@ namespace gsl {
             return end();
         }
 
-        std::string to_string() const {
+        [[nodiscard]] std::string to_string() const override {
             std::stringstream res;
             if (_size == 0)
                 res << "{}";
             else {
                 res << "{";
                 for (size_t i = 0; i < _data.size(); ++i) {
-                    for (auto j = _data[i].begin(); j != _data[i].end(); ++j)
+                    for (auto j = _data[i].begin(); j != _data[i].end(); ++j) {
                         if (i + 1 == _data.size()) {
                             res << (*j).key << ":" << (*j).value;
-                        }
-                    else {
+                        } else {
                             res << (*j).key << ":" << (*j).value << ", ";
                         }
+                    }
                 }
-                }
-                res << "}";
+            }
+            res << "}";
             return res.str();
         }
 

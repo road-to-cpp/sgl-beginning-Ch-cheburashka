@@ -6,8 +6,7 @@
 #define GSLIB_UNORDERED_MAP_ITERATOR_HPP
 
 #include <iterator>
-#include <utils/pair.hpp>
-#include <containers/unordered_map.hpp>
+#include "containers/unordered_map/unordered_map.hpp"
 #include <list>
 
 

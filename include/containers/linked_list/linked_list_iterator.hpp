@@ -5,7 +5,7 @@
 #ifndef GSLIB_LINKED_LIST_ITERATOR_HPP
 #define GSLIB_LINKED_LIST_ITERATOR_HPP
 #include <iterator>
-#include <containers/linked_list.hpp>
+#include "containers/linked_list/linked_list.hpp"
 namespace gsl {
 
     template<typename T>

@@ -2,10 +2,10 @@
 // Created by 79056 on 05.11.2022.
 //
 #include <iostream>
-
 #include <string>
-#include <containers/unordered_map.hpp>
-#include <vector>
+#include "containers/unordered_map/unordered_map.hpp"
+#include <utils/string_utils.hpp>
+#include <string_view>
 
 struct test_struct {
     int value = 10;
@@ -21,84 +21,48 @@ struct test_struct {
     }
 };
 
-
-template<typename T>
-class binary_tree {
-public:
-    struct Node {
-        T data;
-        Node *left = nullptr;
-        Node *right = nullptr;
-    };
-
-    binary_tree() : _head(nullptr) {}
-
-    ~binary_tree() = default;
-
-    void insert(T const &value) {
-        if (_head == nullptr) {
-            _head = new Node{value};
-            _size++;
-        } else {
-            auto current_node = _head;
-            while (true) {
-                if (value < current_node->data) {
-                    if (current_node->left == nullptr) {
-                        current_node->left = new Node{value};
-                        _size++;
-                        break;
-                    } else {
-                        current_node = current_node->left;
-                    }
-                } else {
-                    if (current_node->right == nullptr) {
-                        current_node->right = new Node{value};
-                        _size++;
-                        break;
-                    } else {
-                        current_node = current_node->right;
-                    }
-                }
-            }
-        }
-    }
-
-    [[nodiscard]] std::string to_string() const  {
-        std::stringstream res;
-        std::vector<T> vector;
-        if (_size == 0)
-            res << "[]";
-        else {
-            res << "[";
-            auto *current = _head;
-            while (current->left != nullptr) {
-                vector.push_back(current->data);
-                current = current->left;
-            }
-            vector.push_back(current->data);
-            size_t i = vector.size() - 1;
-            for (auto iterator = vector.begin();iterator != vector.end(); iterator++) { res << vector[i--] << ", "; }
-            current = _head->right;
-            while (current->right != nullptr) {
-                res << current->data << ", ";
-                current = current->right;
-            }
-            res << current->data << "]";
-        }
-        return res.str();
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, binary_tree<T> const& tree) {
-        os << tree.to_string();
-        return os;
-    }
-private:
-    size_t _size = 0;
-    Node *_head;
-};
-
-
 int main() {
+
+    std::cout << "////////////////---- str_utils ----//////////////////// " << "\n\n";
+
+    std::cout << "ends with:\n";
+    if (gsl::string_utils::ends_with("demogorgon","gor"))
+        std::cout << "true\n\n";
+    else
+        std::cout << "false\n\n";
+
+    std::cout << "starts with:\n";
+    if (gsl::string_utils::starts_with("demogorgon","dem"))
+        std::cout << "true\n\n";
+    else
+        std::cout << "false\n\n";
+
+    std::cout << "trim:\n";
+    std::cout << "|  shishka kaif  |" << "\n|" << gsl::string_utils::trim("  shishka kaif  ") << "|\n\n";
+
+    std::cout << "uppercase:\n";
+    std::cout << R"("My Anaconda Don't ..." --- ")" << gsl::string_utils::uppercase("My Anaconda Don't ...") << "\"\n\n";
+
+    std::cout << "lowercase:\n";
+    std::cout << R"("You Other Brothers Can't DENY ..." --- ")" << gsl::string_utils::lowercase("You Other Brothers Can't DENY ...") << "\"\n\n";
+
+    std::cout << "split:\n";
+    std::string s = "Take care of each other, Slavs brothers!";
+    std::cout << s << "\n---\n";
+    for (auto &v : gsl::string_utils::split(s," "))
+        std::cout << v << "\n";
+    std::cout << '\n';
+
+    std::cout << "join:\n";
+    std::vector<int> values = {1, 2, 3, 4};
+    std::string joined;
+    std::cout << gsl::string_utils::join(joined,values,"<") << "\n\n";
+
+    std::vector<std::string> values_s = {"shampun", "smestitel", "germafrodit", "beresa"};
+    std::string joined_2;
+    std::cout << gsl::string_utils::join(joined_2,values_s,"-") << "\n\n";
+
+    std::cout << "////////////////---- unordered_map ----//////////////////// " << "\n\n";
 
     gsl::unordered_map<std::string,int> map;
 
@@ -125,7 +89,7 @@ int main() {
 
 
     std::cout << "size:\n";
-    std::cout << map.size() << std::endl << std::endl; // output: 4
+    std::cout << map.size() << std::endl << std::endl; // output: 5
 
     std::cout << "contains:\n";
     std::cout << map.contains("mother") << std::endl << std::endl; //output: 1

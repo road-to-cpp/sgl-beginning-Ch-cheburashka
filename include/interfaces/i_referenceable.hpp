@@ -9,7 +9,7 @@
 
 namespace gsl {
     template<typename T>
-    class i_referenceable : i_container<T> {
+    class i_referenceable : public i_container<T> {
     public:
         virtual T &back() = 0;
 
