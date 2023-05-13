@@ -8,12 +8,12 @@
 #include <iterator>
 
 namespace gsl {
-    template<typename T>
+    template<typename T, typename Alloc>
     class vector;
 
-    template<typename T>
+    template<typename T, typename Alloc>
     class vector_const_iterator : std::iterator<std::input_iterator_tag, T> {
-        friend class vector<T>;
+        friend class vector<T,Alloc>;
 
     protected:
         explicit vector_const_iterator(T const * data) : _data(data) {}
@@ -42,7 +42,7 @@ namespace gsl {
         bool operator!=(const vector_const_iterator &other) const { return _data != other._data; }
 
 
-        vector_const_iterator(vector_const_iterator<T> const &other) {
+        vector_const_iterator(vector_const_iterator<T,Alloc> const &other) {
             _data = other._data;
         }
 

@@ -8,8 +8,8 @@
 #include "i_referenceable.hpp"
 
 namespace gsl {
-    template<typename T>
-    class i_sequence_container : public i_referenceable<T> {
+    template<typename T, typename Alloc = std::allocator<T>>
+    class i_sequence_container : public i_referenceable<T, Alloc> {
     public:
         virtual ~i_sequence_container() = default;
 

@@ -8,8 +8,8 @@
 #include "i_container.hpp"
 
 namespace gsl {
-    template<typename T>
-    class i_referenceable : public i_container<T> {
+    template<typename T, typename Alloc = std::allocator<T>>
+    class i_referenceable : public i_container<T, Alloc> {
     public:
         virtual T &back() = 0;
 

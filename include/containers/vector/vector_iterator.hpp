@@ -7,12 +7,12 @@
 #include <iterator>
 
 namespace gsl {
-    template<typename T>
+    template<typename T, typename Alloc>
     class vector;
 
-    template<typename T>
+    template<typename T, typename Alloc = std::allocator<T>>
     class vector_iterator : std::iterator<std::input_iterator_tag, T> {
-        friend class vector<T>;
+        friend class vector<T, Alloc>;
 
     protected:
         explicit vector_iterator(T *data) : _data(data) {}

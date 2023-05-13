@@ -11,123 +11,118 @@
 #include "vector_iterator.hpp"
 #include "vector_const_iterator.hpp"
 #include "vector_reverse_iterator.hpp"
-namespace gsl {
-    template<typename T>
-    class vector : public i_sequence_container<T> {
-    public:
-        using iterator = vector_iterator<T>;
-        using const_iterator = vector_const_iterator<T>;
-        using reverse_iterator = vector_reverse_iterator<T>;
+#include <memory>
 
-        explicit vector(size_t size = 0, const T &value = T()) : _size(size), _capacity(size+1), _data(new T[size]) {
+namespace gsl {
+    template<typename T, typename Alloc = std::allocator<T>>
+    class vector : public i_sequence_container<T, Alloc> {
+    public:
+        using AllocTraits = std::allocator_traits<Alloc>;
+        using iterator = vector_iterator<T,Alloc>;
+        using const_iterator = vector_const_iterator<T,Alloc>;
+        using reverse_iterator = vector_reverse_iterator<T,Alloc>;
+
+        explicit vector(size_t size = 0, const T &value = T(), const Alloc& alloc = Alloc()) : _size(size), _capacity(size+1), _data(AllocTraits::allocate(_alloc,_size)), _alloc(alloc) {
             for (size_t i = 0; i < size; i++) {
-                _data[i] = value;
+                AllocTraits::construct(_alloc,_data+i,value);
             }
         }
-
 
         vector(const vector& other) : _size(other._size),_capacity(other._capacity) {
-            _data = new T [other._size];
+            _data = AllocTraits::allocate(_alloc,other._size);
             for (size_t i = 0;i<other._size;i++) {
-                _data[i] = other._data[i];
+                  AllocTraits::construct(_alloc,_data+i,other._data[i]);
             }
         }
 
-        template <typename... Args>
-        void emplace_back (Args&&... args) {
-            if (_size >= _capacity){
-                resize(_capacity * 2);
+        [[nodiscard]] size_t size () const override { return _size; }
+
+        T * data () const { return _data; }
+
+        [[nodiscard]] size_t capacity () const { return _capacity; }
+
+        T &front() override { return *_data; }
+
+        const T &front() const override { return *_data; }
+
+        const T &back() const override { return _data[_size-1]; }
+
+        T &back() override { return _data[_size-1]; }
+
+        void reserve (size_t new_cap) {
+            T* temp = AllocTraits::allocate(_alloc,new_cap);
+            size_t i = 0;
+            try {
+                for (; i < _size; ++i) {
+                    AllocTraits::construct(_alloc,temp+i,_data[i]);
+                }
             }
-            _data[_size++] = T(std::forward<Args>(args)...);
-        }
-
-        [[nodiscard]] size_t size () const override {
-            return _size;
-        }
-        T * data () const {
-            return _data;
-        }
-        [[nodiscard]] size_t capacity () const {
-            return _capacity;
-        }
-
-        T &front() override {
-            return *_data;
-        }
-        const T &front() const override {
-            return *_data;
-        }
-
-        const T &back() const override {
-            return _data[_size-1];
-        }
-
-        T &back() override {
-            return _data[_size-1];
+            catch (...) {
+                for (size_t j = 0; j < i; ++j) {
+                    AllocTraits::destroy(_alloc,temp+j);
+                }
+                throw;
+            }
+            for (size_t j = 0; j < _size; ++j) {
+                AllocTraits::destroy(_alloc,_data+j);
+            }
+            AllocTraits::deallocate(_alloc, _data, _capacity);
+            _data = temp;
+            _capacity = new_cap;
         }
 
         void resize(size_t new_size) override {
-            T *temp = new T[new_size];
+            T* temp = AllocTraits::allocate(_alloc,new_size);
             for (size_t i = 0; i < _size; i++) {
-                temp[i] = std::move(_data[i]);
+                AllocTraits::construct(_alloc,temp+i,_data[i]);
             }
+            for (size_t j = _size; j<new_size;j++){
+                AllocTraits::construct(_alloc,temp+j,T());
+            }
+            for (size_t j = 0; j < _size; ++j) {
+                AllocTraits::destroy(_alloc,_data+j);
+            }
+            AllocTraits::deallocate(_alloc, _data, _capacity);
             _capacity = new_size;
-            delete[] _data;
             _data = temp;
         }
 
         void resize(size_t new_size, const T &value) override {
-            T *temp = new T[new_size];
+            T* temp = AllocTraits::allocate(_alloc,new_size);
             for (size_t i = 0; i < _size; i++) {
-                temp[i] = std::move(_data[i]);
+                AllocTraits::construct(_alloc,temp+i,_data[i]);
             }
             for (size_t j = _size; j<new_size;j++){
-                temp[j] = std::move(value);
+                AllocTraits::construct(_alloc,temp+j,value);
             }
+            for (size_t j = 0; j < _size; ++j) {
+                AllocTraits::destroy(_alloc,_data+j);
+            }
+            AllocTraits::deallocate(_alloc, _data, _capacity);
             _capacity = new_size;
             _size = new_size;
-            delete[] _data;
             _data = temp;
         }
 
         void push_back(const T &value) override {
             if (_size >= _capacity){
-                resize(_capacity * 2);
+                 reserve(_capacity * 2);
             }
-            _data[_size++] = std::move(value);
+            AllocTraits::construct(_alloc,_data+_size,value);
+            ++_size;
         }
 
         void push_front(const T &value) override {
-            if (_size >= _capacity){
-                resize(_capacity * 2);
-            }
-            T* temp = new T[_capacity];
-            temp[0] = value;
-            for (size_t i = 0; i<_size; i++){
-                temp[i+1] = _data[i];
-            }
-            delete [] _data;
-            _data = temp;
-            _size++;
+            insert(value,0);
         }
 
         void pop_back () override {
-            T *temp = new T[_capacity];
-            for (size_t i = 0; i < _size - 1; ++i)
-                temp[i] = std::move(_data[i]);
-            delete[] _data;
-            _data = temp;
-            _size--;
+            AllocTraits::destroy(_alloc,_data+_size-1);
+            --_size;
         }
 
         void pop_front() override {
-            T *temp = new T[_capacity];
-            for (size_t i =1; i<_size;i++){
-                temp[i-1] = _data[i];
-            }
-            delete [] _data;
-            _data = temp;
-            _size--;
+            erase(0);
         }
 
         void clear () override {
@@ -140,33 +135,39 @@ namespace gsl {
             if (index >= _size)
                 throw gsl::exceptions::out_of_range(index,_size);
             if (_size >= _capacity){
-                resize(_capacity * 2);
+                reserve(_capacity * 2);
             }
-            T* temp = new T [_capacity];
+            T* temp = AllocTraits::allocate(_alloc,_capacity);
             for (size_t i = 0; i<index;i++){
-                temp [i] = std::move(_data[i]);
+                AllocTraits::construct(_alloc,temp+i,_data[i]);
             }
-            temp[index] = std::move(value);
+            AllocTraits::construct(_alloc,temp+index,value);
             _size++;
             for (size_t i = index+1;i<_size;i++){
-                temp[i] = std::move(_data[i-1]);
+                AllocTraits::construct(_alloc,temp+i,_data[i-1]);
             }
-            delete [] _data;
+            for (size_t j = 0; j < _size; ++j) {
+                AllocTraits::destroy(_alloc,_data+j);
+            }
+            AllocTraits::deallocate(_alloc, _data, _capacity);
             _data = temp;
         }
 
         void erase(size_t index) override {
             if (index >= _size)
                 throw gsl::exceptions::out_of_range(index,_size);
-            T* temp = new T [_capacity];
+            T* temp = AllocTraits::allocate(_alloc,_capacity);
             _size--;
             for (size_t i =0;i<index;i++){
-                temp[i] = std::move(_data[i]);
+                AllocTraits::construct(_alloc,temp+i,_data[i]);
             }
-            for (size_t i = index;i<_size;i++){
-                temp[i] = std::move(_data[i+1]);
+            for (size_t i = index;i<_size;i++) {
+                AllocTraits::construct(_alloc, temp + i, _data[i+1]);
             }
-            delete [] _data;
+            for (size_t j = 0; j < _size; ++j) {
+                AllocTraits::destroy(_alloc,_data+j);
+            }
+            AllocTraits::deallocate(_alloc, _data, _capacity);
             _data = temp;
         }
 
@@ -175,16 +176,19 @@ namespace gsl {
                 throw gsl::exceptions::out_of_range(first,_size);
             if (last >= _size)
                 throw gsl::exceptions::out_of_range(last,_size);
-            T* temp = new T [_capacity];
+            T* temp = AllocTraits::allocate(_alloc,_capacity);
             size_t dif = last - first + 1;
             _size = _size - dif;
             for (size_t i = 0;i<first;i++){
-                temp[i] = std::move(_data[i]);
+                AllocTraits::construct(_alloc, temp + i, _data[i]);
             }
             for (size_t i = first;i<_size;i++){
-                temp[i] = std::move(_data[i+dif]);
+                AllocTraits::construct(_alloc, temp + i, _data[i+dif]);
             }
-            delete [] _data;
+            for (size_t j = 0; j < _size; ++j) {
+                AllocTraits::destroy(_alloc,_data+j);
+            }
+            AllocTraits::deallocate(_alloc, _data, _capacity);
             _data = temp;
         }
 
@@ -205,38 +209,10 @@ namespace gsl {
             }
             return res.str();
         }
-        void swap (vector &other, bool optimised = true) {
-
-            if (optimised){
-                std::swap(_data, other._data);
-                std::swap(_size, other._size);
-                std::swap(_capacity, other._capacity);
-            }
-            else {
-                T *temp_1 = new T[other._capacity];
-                T *temp_2 = new T[_capacity];
-                for (size_t i = 0; i < other._capacity; i++) {
-                    temp_1[i] = std::move(other._data[i]);
-                }
-                for (size_t i = 0; i < _capacity; i++) {
-                    temp_2[i] = std::move(_data[i]);
-                }
-
-                delete[] _data;
-                delete[] other._data;
-
-                _data = temp_1;
-                other._data = temp_2;
-
-                size_t tmp_size = _size;
-                _size = other._size;
-                other._size = tmp_size;
-
-                size_t tmp_capacity = _capacity;
-                _capacity = other._capacity;
-                other._capacity = tmp_capacity;
-            }
-
+        void swap (vector &other) {
+            std::swap(_data, other._data);
+            std::swap(_size, other._size);
+            std::swap(_capacity, other._capacity);
         }
 
         [[nodiscard]] bool empty () const override {
@@ -278,9 +254,11 @@ namespace gsl {
             return reverse_iterator(_data-1);
         }
 
-
         ~vector() {
-            delete [] _data;
+            for (size_t j = 0; j < _size; ++j) {
+                AllocTraits::destroy(_alloc,_data+j);
+            }
+            AllocTraits::deallocate(_alloc, _data, _capacity);
         }
         friend std::ostream &operator<<(std::ostream &os, const vector &vec) {
             os << vec.to_string();
@@ -291,41 +269,33 @@ namespace gsl {
         size_t _size;
         size_t _capacity;
         T* _data;
+        Alloc _alloc;
     };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    template <typename T>
-    class vector<T*> {
+
+    template <typename T, typename Alloc>
+    class vector<T*,Alloc> {
     public:
-        explicit vector(size_t size = 0, T *value = nullptr) : _size(size), _capacity(size+1), _data(new T*[size]) {
+        using AllocTraits = std::allocator_traits<Alloc>;
+        explicit vector(size_t size = 0, T *value = nullptr, Alloc alloc = Alloc()) : _size(size), _capacity(size+1), _data(AllocTraits::allocate(_alloc,_size)), _alloc(alloc) {
             for (size_t i = 0; i < size; i++) {
-                _data[i] = value;
+                AllocTraits::construct(_alloc,_data+i,value);
             }
         }
-        [[nodiscard]] size_t size () const {
-            return _size;
-        }
-        T ** data () const {
-            return _data;
-        }
-        [[nodiscard]] size_t capacity () const {
-            return _capacity;
-        }
+        [[nodiscard]] size_t size () const { return _size; }
 
-        T* front() {
-            return *_data;
-        }
-        const T* front() const {
-            return *_data;
-        }
+        T ** data () const { return _data; }
 
-        const T* back() const {
-            return _data[_size-1];
-        }
+        [[nodiscard]] size_t capacity () const { return _capacity; }
 
-        T* back() {
-            return _data[_size-1];
-        }
+        T* front() { return *_data; }
+
+        const T* front() const { return *_data; }
+
+        const T* back() const { return _data[_size-1]; }
+
+        T* back() { return _data[_size-1]; }
 
         T* operator[](size_t i) {
             if (i >= _size)
@@ -339,27 +309,58 @@ namespace gsl {
             return _data[i];
         }
 
-        void resize(size_t new_size) {
-            T** temp = new T*[new_size];
-            for (size_t i = 0; i < _size; i++) {
-                temp[i] = std::move(_data[i]);
+        void reserve (size_t new_cap) {
+            T** temp = AllocTraits::allocate(_alloc,new_cap);
+            size_t i = 0;
+            try {
+                for (; i < _size; ++i) {
+                    AllocTraits::construct(_alloc,temp+i,_data[i]);
+                }
             }
+            catch (...) {
+                for (size_t j = 0; j < i; ++j) {
+                    AllocTraits::destroy(_alloc,temp+j);
+                }
+                throw;
+            }
+            for (size_t j = 0; j < _size; ++j) {
+                AllocTraits::destroy(_alloc,_data+j);
+            }
+            AllocTraits::deallocate(_alloc, _data, _capacity);
+            _data = temp;
+            _capacity = new_cap;
+        }
+
+        void resize(size_t new_size) {
+            T** temp = AllocTraits::allocate(_alloc,new_size);
+            for (size_t i = 0; i < _size; i++) {
+                AllocTraits::construct(_alloc,temp+i,_data[i]);
+            }
+            for (size_t j = _size; j<new_size;j++){
+                AllocTraits::construct(_alloc,temp+j,nullptr);
+            }
+            for (size_t j = 0; j < _size; ++j) {
+                AllocTraits::destroy(_alloc,_data+j);
+            }
+            AllocTraits::deallocate(_alloc, _data, _capacity);
             _capacity = new_size;
-            delete[] _data;
             _data = temp;
         }
 
         void resize(size_t new_size, T* value)  {
-            T** temp = new T*[new_size];
+            T** temp = AllocTraits::allocate(_alloc,new_size);
             for (size_t i = 0; i < _size; i++) {
-                temp[i] = std::move(_data[i]);
+                AllocTraits::construct(_alloc,temp+i,_data[i]);
             }
             for (size_t j = _size; j<new_size;j++){
-                temp[j] = std::move(value);
+                AllocTraits::construct(_alloc,temp+j,value);
             }
+            for (size_t j = 0; j < _size; ++j) {
+                AllocTraits::destroy(_alloc,_data+j);
+            }
+            AllocTraits::deallocate(_alloc, _data, _capacity);
             _capacity = new_size;
             _size = new_size;
-            delete[] _data;
             _data = temp;
         }
 
@@ -367,40 +368,21 @@ namespace gsl {
             if (_size >= _capacity){
                 resize(_capacity * 2);
             }
-            _data[_size++] = std::move(value);
-        }
-
-        void push_front(T* value) {
-            if (_size >= _capacity){
-                resize(_capacity * 2);
-            }
-            T** temp = new T*[_capacity];
-            temp[0] = value;
-            for (size_t i = 0; i<_size; i++){
-                temp[i+1] = _data[i];
-            }
-            delete [] _data;
-            _data = temp;
+            AllocTraits::construct(_alloc,_data+_size,value);
             _size++;
         }
 
+        void push_front(T* value) {
+            insert(value,0);
+        }
+
         void pop_back () {
-            T** temp = new T*[_capacity];
-            for (size_t i = 0; i < _size - 1; ++i)
-                temp[i] = std::move(_data[i]);
-            delete[] _data;
-            _data = temp;
-            _size--;
+            AllocTraits::destroy(_alloc,_data+_size-1);
+            --_size;
         }
 
         void pop_front() {
-            T** temp = new T*[_capacity];
-            for (size_t i =1; i<_size;i++){
-                temp[i-1] = _data[i];
-            }
-            delete [] _data;
-            _data = temp;
-            _size--;
+            erase(0);
         }
 
         void clear () {
@@ -415,31 +397,37 @@ namespace gsl {
             if (_size >= _capacity){
                 resize(_capacity * 2);
             }
-            T** temp = new T* [_capacity];
+            T** temp = AllocTraits::allocate(_alloc,_capacity);
             for (size_t i = 0; i<index;i++){
-                temp [i] = std::move(_data[i]);
+                AllocTraits::construct(_alloc,temp+i,_data[i]);
             }
-            temp[index] = std::move(value);
+            AllocTraits::construct(_alloc,temp+index,value);
             _size++;
             for (size_t i = index+1;i<_size;i++){
-                temp[i] = std::move(_data[i-1]);
+                AllocTraits::construct(_alloc,temp+i,_data[i-1]);
             }
-            delete [] _data;
+            for (size_t j = 0; j < _size; ++j) {
+                AllocTraits::destroy(_alloc,_data+j);
+            }
+            AllocTraits::deallocate(_alloc, _data, _capacity);
             _data = temp;
         }
 
         void erase(size_t index) {
             if (index >= _size)
                 throw gsl::exceptions::out_of_range(index,_size);
-            T** temp = new T* [_capacity];
+            T** temp = AllocTraits::allocate(_alloc,_capacity);
             _size--;
             for (size_t i =0;i<index;i++){
-                temp[i] = std::move(_data[i]);
+                AllocTraits::construct(_alloc,temp+i,_data[i]);
             }
-            for (size_t i = index;i<_size;i++){
-                temp[i] = std::move(_data[i+1]);
+            for (size_t i = index;i<_size;i++) {
+                AllocTraits::construct(_alloc, temp + i, _data[i+1]);
             }
-            delete [] _data;
+            for (size_t j = 0; j < _size; ++j) {
+                AllocTraits::destroy(_alloc,_data+j);
+            }
+            AllocTraits::deallocate(_alloc, _data, _capacity);
             _data = temp;
         }
 
@@ -448,16 +436,19 @@ namespace gsl {
                 throw gsl::exceptions::out_of_range(first,_size);
             if (last >= _size)
                 throw gsl::exceptions::out_of_range(last,_size);
-            T** temp = new T* [_capacity];
+            T** temp = AllocTraits::allocate(_alloc,_capacity);
             size_t dif = last - first + 1;
             _size = _size - dif;
             for (size_t i = 0;i<first;i++){
-                temp[i] = std::move(_data[i]);
+                AllocTraits::construct(_alloc, temp + i, _data[i]);
             }
             for (size_t i = first;i<_size;i++){
-                temp[i] = std::move(_data[i+dif]);
+                AllocTraits::construct(_alloc, temp + i, _data[i+dif]);
             }
-            delete [] _data;
+            for (size_t j = 0; j < _size; ++j) {
+                AllocTraits::destroy(_alloc,_data+j);
+            }
+            AllocTraits::deallocate(_alloc, _data, _capacity);
             _data = temp;
         }
 
@@ -495,12 +486,16 @@ namespace gsl {
         }
 
         ~vector() {
-            delete [] _data;
+            for (size_t j = 0; j < _size; ++j) {
+                AllocTraits::destroy(_alloc,_data+j);
+            }
+            AllocTraits::deallocate(_alloc, _data, _capacity);
         }
     private:
         size_t _size;
         size_t _capacity;
         T** _data;
+        Alloc _alloc;
     };
 
     template <>

@@ -8,9 +8,10 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace gsl {
-    template<typename T>
+    template<typename T, typename Alloc = std::allocator<T>>
     class i_container {
     public:
         virtual ~i_container() = default;
